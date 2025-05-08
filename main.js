@@ -10,7 +10,6 @@ let tentativas = []; // Armazenar histórico de tentativas
 
 async function sortearJogador() {
     setLoading(true);
-    // Sorteia um jogador aleatório da lista local
     if (!players.length) {
         setLoading(false);
         alert('Lista de jogadores não carregada.');
@@ -25,15 +24,14 @@ function setLoading(state) {
     document.getElementById('loading').style.display = state ? 'inline' : 'none';
     document.getElementById('choose-btn').disabled = state;
     document.getElementById('player-input').disabled = state;
-    
-    // Resetar o botão para "Escolher" se estiver como "Reiniciar"
     if (!state && document.getElementById('choose-btn').innerText === 'Reiniciar') {
         document.getElementById('choose-btn').innerText = 'Escolher';
     }
 }
 
 function atualizarStatus() {
-    document.getElementById('round-info').textContent = `Rodada: ${rodada} | Acertos: ${acertos} | Vidas: ${vidas} | Recorde: ${recorde}`;
+    document.getElementById('round-info').textContent =
+        `Rodada: ${rodada} | Acertos: ${acertos} | Vidas: ${vidas} | Recorde: ${recorde}`;
 }
 
 function reiniciarJogo() {
@@ -50,7 +48,7 @@ function reiniciarJogo() {
     playerDetails.style.display = 'none';
     atualizarStatus();
     sortearJogador();
-} 
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('player-input');
@@ -65,17 +63,14 @@ document.addEventListener('DOMContentLoaded', () => {
     historicoElement.id = 'historico-tentativas';
     historicoElement.style.display = 'none';
     document.querySelector('.container').insertBefore(historicoElement, feedback);
-    
-    // Funcionalidade do modal tutorial
+
     tutorialBtn.addEventListener('click', () => {
         tutorialModal.style.display = 'block';
     });
-    
     closeBtn.addEventListener('click', () => {
         tutorialModal.style.display = 'none';
     });
-    
-    window.addEventListener('click', (event) => {
+    window.addEventListener('click', event => {
         if (event.target === tutorialModal) {
             tutorialModal.style.display = 'none';
         }
@@ -93,24 +88,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         setLoading(false);
         sortearJogador();
-        // Limpar tentativas ao iniciar
         tentativas = [];
     }
-
     carregarJogadoresEIniciar();
 
-    // Função para normalizar texto (remover acentos e caracteres especiais)
     function normalizeText(text) {
-        return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        return text.normalize('NFD')
+                   .replace(/[\u0300-\u036f]/g, '')
+                   .toLowerCase();
     }
-    
+
     input.addEventListener('input', () => {
         const query = normalizeText(input.value.trim());
         suggestions.innerHTML = '';
         chooseBtn.disabled = true;
         selectedSuggestion = null;
         if (query.length < 3) return;
-        // Busca sugestões locais
         const found = players.filter(p =>
             normalizeText(p.name).includes(query) ||
             normalizeText(p.club).includes(query) ||
@@ -130,172 +123,182 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-        // Função para atualizar o histórico de tentativas
     function atualizarHistoricoTentativas() {
-        const historicoElement = document.getElementById('historico-tentativas');
+        const he = document.getElementById('historico-tentativas');
         if (tentativas.length > 0) {
-            historicoElement.style.display = 'block';
-            historicoElement.innerHTML = `<h3>Histórico de Tentativas</h3>`;
-            
-            const historicoHTML = tentativas.map((tentativa, index) => {
-                return `
+            he.style.display = 'block';
+            he.innerHTML = `<h3>Histórico de Tentativas</h3>`;
+            const html = tentativas.map((t, i) => `
                 <div class="tentativa">
-                    <h4>Tentativa ${index + 1}: ${tentativa.jogador}</h4>
+                    <h4>Tentativa ${i + 1}: ${t.jogador}</h4>
                     <div class="tentativa-resultados">
-                        ${tentativa.resultados.map(r => `<div class="feedback-small ${r.color}"><b>${r.label}:</b> ${r.value}</div>`).join('')}
+                        ${t.resultados.map(r =>
+                          `<div class="feedback-small ${r.color}"><b>${r.label}:</b> ${r.value}</div>`
+                        ).join('')}
                     </div>
                 </div>
-                `;
-            }).join('');
-            
-            historicoElement.innerHTML += historicoHTML;
+            `).join('');
+            he.innerHTML += html;
         } else {
-            historicoElement.style.display = 'none';
+            he.style.display = 'none';
         }
     }
 
-    function verificarHistoricoJogador(jogador, clube, liga) {
-      const jogouNoClube = jogador.past_clubs.includes(clube);
-      const jogouNaLiga = jogador.past_clubs.some(time => {
-        const infoTime = players.find(j => j.name === time);
-        return infoTime?.league === liga;
-      });
-      return { jogouNoClube, jogouNaLiga };
+    // Função corrigida: recebe o jogador correto e verifica contra o chute
+    function verificarHistoricoJogador(jogador, clubeChutado, ligaChutada) {
+        const norm = txt =>
+            txt.normalize('NFD')
+               .replace(/[\u0300-\u036f]/g, '')
+               .toLowerCase();
+
+        const jogouNoClube = (jogador.past_clubs || [])
+            .some(c => norm(c) === norm(clubeChutado));
+
+        const jogouNaLiga = (jogador.past_clubs || [])
+            .some(c => {
+                const clubeObj = players.find(p => p.name === c);
+                return clubeObj && norm(clubeObj.league) === norm(ligaChutada);
+            });
+
+        return { jogouNoClube, jogouNaLiga };
     }
 
     chooseBtn.addEventListener('click', async () => {
-        // Se o jogo acabou e o botão está como "Reiniciar", reiniciar o jogo
         if (fimDeJogo && chooseBtn.innerText === 'Reiniciar') {
             reiniciarJogo();
             return;
         }
-        
         if (fimDeJogo) return;
+
         feedback.innerHTML = '';
         playerDetails.style.display = 'none';
         if (!selectedSuggestion || !correctPlayer) return;
+
         setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 600));
-        // Comparação dos campos
+        await new Promise(res => setTimeout(res, 600));
+
         const results = [];
-        // Idade - Calculando a idade atual em vez de mostrar data de nascimento
-        let idadeCor = 'red';
-        let idadeJogadorSelecionado = '-';
-        let idadeJogadorCorreto = '-';
-        
+        // Cálculo de idade selecionada e correta...
+        let idadeCor = 'red', idadeSel = '-', idadeCorreta = '-';
         if (selectedSuggestion.birthdate) {
-            const hoje = new Date();
-            const nascimento = new Date(selectedSuggestion.birthdate);
-            idadeJogadorSelecionado = hoje.getFullYear() - nascimento.getFullYear();
-            const m = hoje.getMonth() - nascimento.getMonth();
-            if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
-                idadeJogadorSelecionado--;
-            }
+            const hoje = new Date(), nasc = new Date(selectedSuggestion.birthdate);
+            idadeSel = hoje.getFullYear() - nasc.getFullYear();
+            const m = hoje.getMonth() - nasc.getMonth();
+            if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idadeSel--;
         }
-        
         if (correctPlayer.birthdate) {
-            const hoje = new Date();
-            const nascimento = new Date(correctPlayer.birthdate);
-            idadeJogadorCorreto = hoje.getFullYear() - nascimento.getFullYear();
-            const m = hoje.getMonth() - nascimento.getMonth();
-            if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
-                idadeJogadorCorreto--;
-            }
+            const hoje = new Date(), nasc = new Date(correctPlayer.birthdate);
+            idadeCorreta = hoje.getFullYear() - nasc.getFullYear();
+            const m = hoje.getMonth() - nasc.getMonth();
+            if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idadeCorreta--;
         }
-        
-        if (idadeJogadorSelecionado === idadeJogadorCorreto) {
-            idadeCor = 'green';
-        } else if (Math.abs(idadeJogadorSelecionado - idadeJogadorCorreto) <= 2) {
-            idadeCor = 'orange';
-        }
-        
-        results.push({label: 'Idade', value: idadeJogadorSelecionado + ' anos', correct: idadeJogadorCorreto + ' anos', color: idadeCor});
+        if (idadeSel === idadeCorreta) idadeCor = 'green';
+        else if (Math.abs(idadeSel - idadeCorreta) <= 2) idadeCor = 'orange';
+
+        results.push({
+            label: 'Idade',
+            value: `${idadeSel} anos`,
+            correct: `${idadeCorreta} anos`,
+            color: idadeCor
+        });
+
         // Clube
-        let clubeCor = 'red';
+        let corClube = 'red';
         if (normalizeText(selectedSuggestion.club) === normalizeText(correctPlayer.club)) {
-            clubeCor = 'green';
-        } else if (correctPlayer.past_clubs && correctPlayer.past_clubs.includes(selectedSuggestion.club)) {
-            clubeCor = 'orange';
+            corClube = 'green';
+        } else if (correctPlayer.past_clubs?.includes(selectedSuggestion.club)) {
+            corClube = 'orange';
         }
-        results.push({label: 'Clube', value: selectedSuggestion.club, correct: correctPlayer.club, color: clubeCor});
-        
+        results.push({
+            label: 'Clube',
+            value: selectedSuggestion.club,
+            correct: correctPlayer.club,
+            color: corClube
+        });
+
         // Liga
-        let ligaCor = 'red';
+        let corLiga = 'red';
         if (normalizeText(selectedSuggestion.league) === normalizeText(correctPlayer.league)) {
-            ligaCor = 'green';
+            corLiga = 'green';
         } else {
-            // Verifica se já jogou na liga
-            const jaJogouNaLiga = (correctPlayer.past_clubs || []).some(clubeNome => {
-                const clubeObj = players.find(j => j.name === clubeNome);
-                return clubeObj && normalizeText(clubeObj.league) === normalizeText(selectedSuggestion.league);
+            const jaNaLiga = (correctPlayer.past_clubs || []).some(c => {
+                const obj = players.find(p => p.name === c);
+                return obj && normalizeText(obj.league) === normalizeText(selectedSuggestion.league);
             });
-            if (jaJogouNaLiga) {
-                ligaCor = 'orange';
-            }
+            if (jaNaLiga) corLiga = 'orange';
         }
-        results.push({label: 'Liga', value: selectedSuggestion.league, correct: correctPlayer.league, color: ligaCor});
+        results.push({
+            label: 'Liga',
+            value: selectedSuggestion.league,
+            correct: correctPlayer.league,
+            color: corLiga
+        });
+
         // Posição
-        let posCor = 'red';
-        if (normalizeText(selectedSuggestion.position) === normalizeText(correctPlayer.position)) {
-            posCor = 'green';
-        }
-        results.push({label: 'Posição', value: selectedSuggestion.position, correct: correctPlayer.position, color: posCor});
+        const corPos = normalizeText(selectedSuggestion.position) === normalizeText(correctPlayer.position)
+            ? 'green' : 'red';
+        results.push({
+            label: 'Posição',
+            value: selectedSuggestion.position,
+            correct: correctPlayer.position,
+            color: corPos
+        });
+
         // Nacionalidade
-        let nacCor = 'red';
-        if (normalizeText(selectedSuggestion.nationality) === normalizeText(correctPlayer.nationality)) {
-            nacCor = 'green';
-        }
-        results.push({label: 'Nacionalidade', value: selectedSuggestion.nationality, correct: correctPlayer.nationality, color: nacCor});
-        // Histórico de clubes
-        const historico = verificarHistoricoJogador(selectedSuggestion, correctPlayer.club, correctPlayer.league);
-        let historicoCor = 'red';
-        if (historico.jogouNoClube || historico.jogouNaLiga) {
-            historicoCor = 'green';
-        }
-        results.push({label: 'Histórico de Clubes', value: historico.jogouNoClube ? 'Jogou no clube' : 'Não jogou no clube', correct: historico.jogouNoClube ? 'Jogou no clube' : 'Não jogou no clube', color: historicoCor});
-        // Adicionar esta tentativa ao histórico
+        const corNac = normalizeText(selectedSuggestion.nationality) === normalizeText(correctPlayer.nationality)
+            ? 'green' : 'red';
+        results.push({
+            label: 'Nacionalidade',
+            value: selectedSuggestion.nationality,
+            correct: correctPlayer.nationality,
+            color: corNac
+        });
+
+        // Histórico de clubes – agora invertido corretamente
+        const historico = verificarHistoricoJogador(
+            correctPlayer,
+            selectedSuggestion.club,
+            selectedSuggestion.league
+        );
+        const corHist = (historico.jogouNoClube || historico.jogouNaLiga) ? 'green' : 'red';
+        results.push({
+            label: 'Histórico de Clubes',
+            value: historico.jogouNoClube ? 'Jogou no clube' : 'Não jogou no clube',
+            correct: historico.jogouNoClube ? 'Jogou no clube' : 'Não jogou no clube',
+            color: corHist
+        });
+
+        // Salva tentativa e renderiza feedback
         tentativas.push({
             jogador: selectedSuggestion.name,
             resultados: results
         });
-        
-        // Renderização do feedback atual
-        feedback.innerHTML = results.map(r => `<div class="feedback ${r.color}"><b>${r.label}:</b> ${r.value}</div>`).join('');
-        
-        // Atualizar o histórico de tentativas
+        feedback.innerHTML = results.map(r =>
+            `<div class="feedback ${r.color}"><b>${r.label}:</b> ${r.value}</div>`
+        ).join('');
         atualizarHistoricoTentativas();
-        playerDetails.style.display = 'none'; // Só mostra o nome ao acertar tudo ou perder
 
-        // Se acertou tudo, conta ponto e sorteia novo jogador
+        // Lógica de acerto total ou perda de vida...
         if (results.every(r => r.color === 'green')) {
             acertos++;
             rodada++;
-            vidas += 3; // Adiciona 3 vidas ao acertar o jogador
+            vidas += 3;
             playerDetails.style.display = 'block';
-            // Calcular idade do jogador correto
-            let idadeJogadorCorreto = '-';
-            if (correctPlayer.birthdate) {
-                const hoje = new Date();
-                const nascimento = new Date(correctPlayer.birthdate);
-                idadeJogadorCorreto = hoje.getFullYear() - nascimento.getFullYear();
-                const m = hoje.getMonth() - nascimento.getMonth();
-                if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
-                    idadeJogadorCorreto--;
-                }
-            }
-            
-            playerDetails.innerHTML = `<h3>Jogador correto: ${correctPlayer.name}</h3>
-                <p>Idade: ${idadeJogadorCorreto} anos</p>
+            playerDetails.innerHTML = `
+                <h3>Jogador correto: ${correctPlayer.name}</h3>
+                <p>Idade: ${idadeCorreta} anos</p>
                 <p>Clube: ${correctPlayer.club}</p>
                 <p>Liga: ${correctPlayer.league}</p>
                 <p>Posição: ${correctPlayer.position}</p>
-                <p>Nacionalidade: ${correctPlayer.nationality}</p>`;
+                <p>Nacionalidade: ${correctPlayer.nationality}</p>
+            `;
             setTimeout(() => {
-                feedback.innerHTML = '<div class="feedback green"><b>Parabéns! Você acertou tudo! Próximo jogador sorteado...</b></div>';
+                feedback.innerHTML = `<div class="feedback green">
+                    <b>Parabéns! Você acertou tudo! Próximo jogador sorteado...</b>
+                </div>`;
                 playerDetails.style.display = 'none';
                 atualizarStatus();
                 sortearJogador();
-                // Limpar histórico de tentativas para o novo jogador
                 tentativas = [];
                 document.getElementById('historico-tentativas').style.display = 'none';
             }, 1800);
@@ -308,35 +311,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 playerDetails.style.display = 'block';
                 chooseBtn.innerText = 'Reiniciar';
                 chooseBtn.disabled = false;
-                // Calcular idade do jogador correto
-                let idadeJogadorCorreto = '-';
-                if (correctPlayer.birthdate) {
-                    const hoje = new Date();
-                    const nascimento = new Date(correctPlayer.birthdate);
-                    idadeJogadorCorreto = hoje.getFullYear() - nascimento.getFullYear();
-                    const m = hoje.getMonth() - nascimento.getMonth();
-                    if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
-                        idadeJogadorCorreto--;
-                    }
-                }
-                
-                playerDetails.innerHTML = `<h3>Jogador correto: ${correctPlayer.name}</h3>
-                    <p>Idade: ${idadeJogadorCorreto} anos</p>
+                playerDetails.innerHTML = `
+                    <h3>Jogador correto: ${correctPlayer.name}</h3>
+                    <p>Idade: ${idadeCorreta} anos</p>
                     <p>Clube: ${correctPlayer.club}</p>
                     <p>Liga: ${correctPlayer.league}</p>
                     <p>Posição: ${correctPlayer.position}</p>
-                    <p>Nacionalidade: ${correctPlayer.nationality}</p>`;
+                    <p>Nacionalidade: ${correctPlayer.nationality}</p>
+                `;
                 if (acertos > recorde) {
                     recorde = acertos;
                     localStorage.setItem('recorde_futebol', recorde);
-                    feedback.innerHTML = `<div class='feedback green'><b>Fim de jogo! Novo recorde: ${recorde} acertos!</b></div>`;
+                    feedback.innerHTML = `<div class='feedback green'>
+                        <b>Fim de jogo! Novo recorde: ${recorde} acertos!</b>
+                    </div>`;
                 } else {
-                    feedback.innerHTML = `<div class='feedback red'><b>Fim de jogo! Sua pontuação: ${acertos}. Recorde: ${recorde}</b></div>`;
+                    feedback.innerHTML = `<div class='feedback red'>
+                        <b>Fim de jogo! Sua pontuação: ${acertos}. Recorde: ${recorde}</b>
+                    </div>`;
                 }
                 chooseBtn.disabled = true;
                 input.disabled = true;
             }
         }
+
         setLoading(false);
         selectedSuggestion = null;
         chooseBtn.disabled = true;
