@@ -1,34 +1,28 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quem sou eu? Futebol</title>
-  <meta name="description" content="Jogo de adivinhação de jogadores de futebol: tente acertar com base em idade, clube, liga, posição e nacionalidade.">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="header">
+  <div class="container">
     <h1>Quem sou eu? Jogadores de Futebol</h1>
-    <button id="tutorial-btn" class="info-btn" type="button" aria-haspopup="dialog" aria-controls="tutorial-modal">
-      Como Jogar
-    </button>
-  </header>
 
-  <main>
-    <section id="instructions" class="instructions">
+    <div id="instructions">
       <p>
-        Tente adivinhar o jogador sorteado! Digite o nome, escolha e veja o feedback de cada atributo.
-        <br>
-        <strong>Dica:</strong> Use partes do nome, nacionalidade, clube, etc.
+        Tente adivinhar o jogador sorteado! Digite o nome, escolha e veja o feedback de cada atributo.<br>
+        <strong>Dica:</strong> Você pode usar partes do nome, nacionalidade, clube, etc.
       </p>
-    </section>
+      <button id="tutorial-btn" class="info-btn" type="button">Como Jogar</button>
+    </div>
 
     <!-- Modal Tutorial -->
-    <div id="tutorial-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="tutorial-title" aria-hidden="true">
+    <div id="tutorial-modal" class="modal">
       <div class="modal-content">
-        <button class="close" type="button" aria-label="Fechar">&times;</button>
-        <h2 id="tutorial-title">Como Jogar &quot;Quem Sou Eu?&quot;</h2>
+        <span class="close" aria-label="Fechar">&times;</span>
+        <h2>Como Jogar "Quem Sou Eu?"</h2>
         <div class="tutorial-section">
           <h3>Objetivo</h3>
           <p>Adivinhar o jogador de futebol escondido com o menor número de tentativas.</p>
@@ -48,51 +42,34 @@
             <li><span class="color-sample orange"></span> <strong>Laranja:</strong> Já atuou no clube ou liga, mas não está mais lá.</li>
             <li><span class="color-sample red"></span> <strong>Vermelho:</strong> Nunca atuou no clube ou liga.</li>
           </ul>
-          <p>O histórico completo de clubes será mostrado ao acertar o jogador.</p>
+          <p>O histórico completo de clubes será mostrado quando acertar o jogador.</p>
         </div>
         <div class="tutorial-section">
           <h3>Como funciona</h3>
           <ul>
-            <li>Digite o nome do jogador que deseja testar.</li>
+            <li>Digite o nome do jogador que você quer testar.</li>
             <li>Selecione um jogador da lista de sugestões.</li>
-            <li>Clique em <strong>&quot;Escolher&quot;</strong> para ver a comparação.</li>
+            <li>Clique em "Escolher" para ver a comparação.</li>
             <li>Acerte o jogador para ganhar pontos e 3 vidas extras.</li>
-            <li>O jogo termina quando suas vidas se esgotarem.</li>
+            <li>O jogo termina quando acabarem suas vidas.</li>
           </ul>
         </div>
       </div>
     </div>
 
-    <section id="game-area" class="game-area">
-      <div id="game-status" class="game-status" aria-live="polite">
-        <span id="round-info"></span>
-        <span id="loading" class="loading" hidden>Carregando...</span>
-      </div>
+    <div id="game-status">
+      <span id="round-info"></span>
+      <span id="loading">Carregando...</span>
+    </div>
 
-      <div class="input-group">
-        <label for="player-input" class="sr-only">Nome do jogador</label>
-        <input
-          type="text"
-          id="player-input"
-          placeholder="Digite o nome do jogador..."
-          autocomplete="off"
-          aria-autocomplete="list"
-          aria-controls="suggestions"
-        >
-      </div>
+    <input type="text" id="player-input" placeholder="Digite o nome do jogador...">
+    <ul id="suggestions"></ul>
+    <button id="choose-btn" disabled>Escolher</button>
 
-      <ul id="suggestions" role="listbox" class="suggestions"></ul>
-      <button id="choose-btn" type="button" disabled>Escolher</button>
+    <div id="feedback"></div>
+    <div id="player-details"></div>
+  </div>
 
-      <div id="feedback" class="feedback-container" aria-live="assertive"></div>
-      <div id="player-details" class="player-details" hidden></div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <p>&copy; 2025 Quem sou eu? Futebol</p>
-  </footer>
-
-  <script src="main.js" defer></script>
+  <script src="main.js"></script>
 </body>
 </html>
