@@ -1,75 +1,60 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quem sou eu? Futebol</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quem sou eu? Futebol</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Quem sou eu? Jogadores de Futebol</h1>
+    <div class="container">
+        <h1>Quem sou eu? Jogadores de Futebol</h1>
+        <div id="instructions">
+            <p>Tente adivinhar o jogador sorteado! Digite o nome, escolha e veja o feedback de cada atributo.<br>
+            <b>Dica:</b> Você pode usar partes do nome, nacionalidade, clube, etc.</p>
+            <button id="tutorial-btn" class="info-btn">Como Jogar</button>
+        </div>
 
-    <div id="instructions">
-      <p>
-        Tente adivinhar o jogador sorteado! Digite o nome, escolha e veja o feedback de cada atributo.<br>
-        <strong>Dica:</strong> Você pode usar partes do nome, nacionalidade, clube, etc.
-      </p>
-      <button id="tutorial-btn" class="info-btn" type="button">Como Jogar</button>
+        <!-- Modal Tutorial -->
+        <div id="tutorial-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Como Jogar "Quem Sou Eu?"</h2>
+                <div class="tutorial-section">
+                    <h3>Objetivo</h3>
+                    <p>Adivinhar o jogador de futebol escondido com o menor número de tentativas.</p>
+                </div>
+                <div class="tutorial-section">
+                    <h3>Significado das cores</h3>
+                    <ul>
+                        <li><span class="color-sample green"></span> <b>Verde:</b> Atributo idêntico ao do jogador escondido.</li>
+                        <li><span class="color-sample orange"></span> <b>Laranja:</b> Parcialmente correto (idade até 2 anos ou histórico).</li>
+                        <li><span class="color-sample red"></span> <b>Vermelho:</b> Atributo diferente do jogador escondido.</li>
+                    </ul>
+                </div>
+                <div class="tutorial-section">
+                    <h3>Como funciona</h3>
+                    <ul>
+                        <li>Digite o nome do jogador que você quer testar</li>
+                        <li>Selecione um jogador da lista de sugestões</li>
+                        <li>Clique em "Escolher" para ver a comparação</li>
+                        <li>Acerte o jogador para ganhar pontos e 3 vidas extras</li>
+                        <li>O jogo termina quando acabarem suas vidas</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-status">
+            <span id="round-info"></span>
+            <span id="loading" style="display:none;">Carregando...</span>
+        </div>
+        <input type="text" id="player-input" placeholder="Digite o nome do jogador...">
+        <ul id="suggestions"></ul>
+        <button id="choose-btn" disabled>Escolher</button>
+        <div id="feedback"></div>
+        <div id="player-details" style="display:none;"></div>
     </div>
-
-    <!-- Modal Tutorial -->
-    <div id="tutorial-modal" class="modal">
-      <div class="modal-content">
-        <span class="close" aria-label="Fechar">&times;</span>
-        <h2>Como Jogar "Quem Sou Eu?"</h2>
-        <div class="tutorial-section">
-          <h3>Objetivo</h3>
-          <p>Adivinhar o jogador de futebol escondido com o menor número de tentativas.</p>
-        </div>
-        <div class="tutorial-section">
-          <h3>Significado das cores</h3>
-          <ul>
-            <li><span class="color-sample green"></span> <strong>Verde:</strong> Atributo idêntico ao do jogador escondido.</li>
-            <li><span class="color-sample orange"></span> <strong>Laranja:</strong> Parcialmente correto (idade com diferença de até 2 anos).</li>
-            <li><span class="color-sample red"></span> <strong>Vermelho:</strong> Atributo diferente do jogador escondido.</li>
-          </ul>
-        </div>
-        <div class="tutorial-section">
-          <h3>Dicas de Histórico</h3>
-          <ul>
-            <li><span class="color-sample green"></span> <strong>Verde:</strong> O jogador está atualmente no clube ou liga mencionados.</li>
-            <li><span class="color-sample orange"></span> <strong>Laranja:</strong> Já atuou no clube ou liga, mas não está mais lá.</li>
-            <li><span class="color-sample red"></span> <strong>Vermelho:</strong> Nunca atuou no clube ou liga.</li>
-          </ul>
-          <p>O histórico completo de clubes será mostrado quando acertar o jogador.</p>
-        </div>
-        <div class="tutorial-section">
-          <h3>Como funciona</h3>
-          <ul>
-            <li>Digite o nome do jogador que você quer testar.</li>
-            <li>Selecione um jogador da lista de sugestões.</li>
-            <li>Clique em "Escolher" para ver a comparação.</li>
-            <li>Acerte o jogador para ganhar pontos e 3 vidas extras.</li>
-            <li>O jogo termina quando acabarem suas vidas.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div id="game-status">
-      <span id="round-info"></span>
-      <span id="loading">Carregando...</span>
-    </div>
-
-    <input type="text" id="player-input" placeholder="Digite o nome do jogador...">
-    <ul id="suggestions"></ul>
-    <button id="choose-btn" disabled>Escolher</button>
-
-    <div id="feedback"></div>
-    <div id="player-details"></div>
-  </div>
-
-  <script src="main.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
