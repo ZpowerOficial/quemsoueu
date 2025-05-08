@@ -154,6 +154,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function verificarHistoricoJogador(jogador, clube, liga) {
+      const jogouNoClube = jogador.past_clubs.includes(clube);
+      const jogouNaLiga = jogador.past_clubs.some(time => {
+        const infoTime = players.find(j => j.name === time);
+        return infoTime?.league === liga;
+      });
+      return { jogouNoClube, jogouNaLiga };
+    }
+
     chooseBtn.addEventListener('click', async () => {
         // Se o jogo acabou e o botão está como "Reiniciar", reiniciar o jogo
         if (fimDeJogo && chooseBtn.innerText === 'Reiniciar') {
@@ -205,6 +214,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let clubeCor = 'red';
         if (normalizeText(selectedSuggestion.club) === normalizeText(correctPlayer.club)) {
             clubeCor = 'green';
+        } else if (correctPlayer.past_clubs && correctPlayer.past_clubs.includes(selectedSuggestion.club)) {
+            clubeCor = 'orange';
         }
         results.push({label: 'Clube', value: selectedSuggestion.club, correct: correctPlayer.club, color: clubeCor});
         
@@ -212,6 +223,15 @@ document.addEventListener('DOMContentLoaded', () => {
         let ligaCor = 'red';
         if (normalizeText(selectedSuggestion.league) === normalizeText(correctPlayer.league)) {
             ligaCor = 'green';
+        } else {
+            // Verifica se já jogou na liga
+            const jaJogouNaLiga = (correctPlayer.past_clubs || []).some(clubeNome => {
+                const clubeObj = players.find(j => j.name === clubeNome);
+                return clubeObj && normalizeText(clubeObj.league) === normalizeText(selectedSuggestion.league);
+            });
+            if (jaJogouNaLiga) {
+                ligaCor = 'orange';
+            }
         }
         results.push({label: 'Liga', value: selectedSuggestion.league, correct: correctPlayer.league, color: ligaCor});
         // Posição
@@ -226,6 +246,13 @@ document.addEventListener('DOMContentLoaded', () => {
             nacCor = 'green';
         }
         results.push({label: 'Nacionalidade', value: selectedSuggestion.nationality, correct: correctPlayer.nationality, color: nacCor});
+        // Histórico de clubes
+        const historico = verificarHistoricoJogador(selectedSuggestion, correctPlayer.club, correctPlayer.league);
+        let historicoCor = 'red';
+        if (historico.jogouNoClube || historico.jogouNaLiga) {
+            historicoCor = 'green';
+        }
+        results.push({label: 'Histórico de Clubes', value: historico.jogouNoClube ? 'Jogou no clube' : 'Não jogou no clube', correct: historico.jogouNoClube ? 'Jogou no clube' : 'Não jogou no clube', color: historicoCor});
         // Adicionar esta tentativa ao histórico
         tentativas.push({
             jogador: selectedSuggestion.name,
