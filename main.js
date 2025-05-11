@@ -1,282 +1,530 @@
-// main.js
+// main.js - Jogo de Adivinhação de Jogadores de Futebol
 
-// Seleção de modo ao carregar o script (antes do DOM estar pronto)
-let mode = 'normal';
-const escolha = prompt("Escolha o modo de jogo: 'normal' ou 'dificil'");
-if (escolha && escolha.trim().toLowerCase() === 'dificil') {
-  mode = 'dificil';
-  alert('Modo difícil ativado: temporizador de 20s e inclusão de aposentados.');
-} else {
-  mode = 'normal';
-  alert('Modo normal ativado: apenas jogadores ativos.');
-}
-
-let players = [];
-let selectedSuggestion = null;
-let correctPlayer = null;
-let rodada = 1;
-let acertos = 0;
-let vidas = 10;
-let fimDeJogo = false;
-let recorde = Number(localStorage.getItem('recorde_futebol')) || 0;
-let tentativas = [];
-let timerInterval = null;
-let timeLeft = 20;
-
-document.addEventListener('DOMContentLoaded', () => {
-  const input = document.getElementById('player-input');
-  const suggestions = document.getElementById('suggestions');
-  const chooseBtn = document.getElementById('choose-btn');
-  const feedback = document.getElementById('feedback');
-  const playerDetails = document.getElementById('player-details');
-  const tutorialBtn = document.getElementById('tutorial-btn');
-  const tutorialModal = document.getElementById('tutorial-modal');
-  const closeBtn = tutorialModal.querySelector('.close');
-
-  // Modal tutorial
-  tutorialBtn.addEventListener('click', () => tutorialModal.style.display = 'block');
-  closeBtn.addEventListener('click', () => tutorialModal.style.display = 'none');
-  window.addEventListener('click', e => { if (e.target === tutorialModal) tutorialModal.style.display = 'none'; });
-
-  // Timer display (modo difícil)
-  const timerSpan = document.createElement('span');
-  timerSpan.id = 'timer';
-  timerSpan.style.marginLeft = '20px';
-  document.getElementById('game-status').appendChild(timerSpan);
-
-  // Histórico inverso
-  const historicoEl = document.createElement('div');
-  historicoEl.id = 'historico-tentativas';
-  historicoEl.style.display = 'none';
-  document.querySelector('.container').insertBefore(historicoEl, feedback);
-
-  // Iniciar
-  carregarJogadoresEIniciar();
-
-  // Normalização de texto
-  function normalizeText(t) {
-    return t.normalize('NFD').replace(/[̀-\u036f]/g, '').toLowerCase();
+// Estado centralizado do jogo
+const gameState = {
+  mode: 'normal',
+  players: [],
+  selectedPlayer: null,
+  correctPlayer: null,
+  round: 1,
+  wins: 0,
+  lives: 10,
+  gameOver: false,
+  record: Number(localStorage.getItem('recorde_futebol')) || 0,
+  attempts: [],
+  timerInterval: null,
+  timeLeft: 20,
+  
+  resetGame() {
+    this.round = 1;
+    this.wins = 0;
+    this.lives = 10;
+    this.gameOver = false;
+    this.attempts = [];
+    this.timeLeft = 20;
   }
+};
 
-  // Sugestões
-  input.addEventListener('input', () => {
-    const q = normalizeText(input.value.trim());
-    suggestions.innerHTML = '';
-    selectedSuggestion = null;
-    chooseBtn.disabled = true;
-    if (q.length < 3) return;
-    const found = players.filter(p =>
-      normalizeText(p.name).includes(q) ||
-      normalizeText(p.club).includes(q) ||
-      normalizeText(p.nationality).includes(q)
-    ).slice(0, 5);
-    found.forEach(p => {
-      const li = document.createElement('li');
-      li.textContent = `${p.name} (${p.nationality})`;
-      li.onclick = () => {
-        suggestions.querySelectorAll('li').forEach(n => n.classList.remove('selected'));
-        li.classList.add('selected');
-        selectedSuggestion = p;
-        chooseBtn.disabled = false;
-      };
-      suggestions.appendChild(li);
-    });
-  });
+// Utilitários
+const Utils = {
+  normalizeText(text) {
+    return text.normalize('NFD').replace(/[̀-\u036f]/g, '').toLowerCase();
+  },
+  
+  calcAge(birthdate) {
+    const today = new Date();
+    const birthDate = new Date(birthdate);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const month = today.getMonth() - birthDate.getMonth();
+    
+    if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  },
+  
+  delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+};
 
-  // Ação do botão Escolher
-  chooseBtn.addEventListener('click', async () => {
-    if (fimDeJogo && chooseBtn.innerText === 'Reiniciar') return reiniciarJogo();
-    if (fimDeJogo || !selectedSuggestion || !correctPlayer) return;
-
-    clearTimer();
-    feedback.innerHTML = '';
-    playerDetails.style.display = 'none';
-    setLoading(true);
-    await new Promise(r => setTimeout(r, 600));
-
-    const results = [];
-    // Idade
-    let selAge = '-', corrAge = '-', ageColor = 'red';
-    if (selectedSuggestion.birthdate) selAge = calcAge(selectedSuggestion.birthdate);
-    if (correctPlayer.birthdate) corrAge = calcAge(correctPlayer.birthdate);
-    if (selAge === corrAge) ageColor = 'green';
-    else if (Math.abs(selAge - corrAge) <= 2) ageColor = 'orange';
-    results.push({ label: 'Idade', value: `${selAge} anos`, correct: `${corrAge} anos`, color: ageColor });
-
-    // Clube
-    let clubColor = 'red';
-    if (normalizeText(selectedSuggestion.club) === normalizeText(correctPlayer.club)) clubColor = 'green';
-    else if ((correctPlayer.past_clubs||[]).some(c => normalizeText(c) === normalizeText(selectedSuggestion.club))) clubColor = 'orange';
-    results.push({ label: 'Clube', value: selectedSuggestion.club, correct: correctPlayer.club, color: clubColor });
-
-    // Liga
-    let leagueColor = 'red';
-    if (normalizeText(selectedSuggestion.league) === normalizeText(correctPlayer.league)) leagueColor = 'green';
-    else if ((correctPlayer.past_clubs||[]).some(c => {
-      const o = players.find(x => x.name === c);
-      return o && normalizeText(o.league) === normalizeText(selectedSuggestion.league);
-    })) leagueColor = 'orange';
-    results.push({ label: 'Liga', value: selectedSuggestion.league, correct: correctPlayer.league, color: leagueColor });
-
-    // Posição
-    const posColor = normalizeText(selectedSuggestion.position) === normalizeText(correctPlayer.position) ? 'green' : 'red';
-    results.push({ label: 'Posição', value: selectedSuggestion.position, correct: correctPlayer.position, color: posColor });
-
-    // Nacionalidade
-    const natColor = normalizeText(selectedSuggestion.nationality) === normalizeText(correctPlayer.nationality) ? 'green' : 'red';
-    results.push({ label: 'Nacionalidade', value: selectedSuggestion.nationality, correct: correctPlayer.nationality, color: natColor });
-
-    // Exibir feedback
-    feedback.innerHTML = results.map(r =>
+// Gerenciador de UI
+const UI = {
+  elements: {},
+  
+  initialize() {
+    // Capturar referências DOM
+    this.elements = {
+      input: document.getElementById('player-input'),
+      suggestions: document.getElementById('suggestions'),
+      chooseBtn: document.getElementById('choose-btn'),
+      feedback: document.getElementById('feedback'),
+      playerDetails: document.getElementById('player-details'),
+      tutorialBtn: document.getElementById('tutorial-btn'),
+      tutorialModal: document.getElementById('tutorial-modal'),
+      closeBtn: document.querySelector('#tutorial-modal .close'),
+      roundInfo: document.getElementById('round-info'),
+      loading: document.getElementById('loading'),
+      modeToggle: document.getElementById('mode-toggle')
+    };
+    
+    // Criar timer para modo difícil se não existir
+    if (!document.getElementById('timer')) {
+      const timerSpan = document.createElement('span');
+      timerSpan.id = 'timer';
+      timerSpan.style.marginLeft = '20px';
+      document.getElementById('game-status').appendChild(timerSpan);
+      this.elements.timer = timerSpan;
+    } else {
+      this.elements.timer = document.getElementById('timer');
+    }
+    
+    // Criar contêiner de histórico se não existir
+    if (!document.getElementById('historico-tentativas')) {
+      const historyContainer = document.createElement('div');
+      historyContainer.id = 'historico-tentativas';
+      historyContainer.style.display = 'none';
+      document.querySelector('.container').insertBefore(
+        historyContainer, 
+        this.elements.feedback
+      );
+      this.elements.historyContainer = historyContainer;
+    } else {
+      this.elements.historyContainer = document.getElementById('historico-tentativas');
+    }
+    
+    // Iniciar com o modo normal
+    document.body.classList.add('normal-mode');
+  },
+  
+  setLoading(state) {
+    this.elements.loading.style.display = state ? 'inline' : 'none';
+    this.elements.chooseBtn.disabled = state;
+    this.elements.input.disabled = state;
+    if (!state && this.elements.chooseBtn.innerText === 'Reiniciar') {
+      this.elements.chooseBtn.innerText = 'Escolher';
+    }
+  },
+  
+  updateGameStatus() {
+    this.elements.roundInfo.textContent = `Rodada: ${gameState.round} | Acertos: ${gameState.wins} | Vidas: ${gameState.lives} | Recorde: ${gameState.record}`;
+  },
+  
+  updateTimer(time) {
+    if (this.elements.timer) {
+      this.elements.timer.textContent = `Tempo: ${time}s`;
+    }
+  },
+  
+  clearSuggestions() {
+    this.elements.suggestions.innerHTML = '';
+  },
+  
+  showFeedback(results) {
+    this.elements.feedback.innerHTML = results.map(r =>
       `<div class="feedback ${r.color}"><b>${r.label}:</b> ${r.value}</div>`
     ).join('');
-
-    // Atualizar histórico invertido
-    tentativas.unshift({ jogador: selectedSuggestion.name, resultados: results });
-    atualizarHistoricoTentativas();
-
-    // Verifica vitória ou vida
-    if (results.every(r => r.color === 'green')) {
-      acertos++;
-      vidas += 3;
-      displayCorrect();
-      await delay(1800);
-      feedback.innerHTML = '<div class="feedback green"><b>Parabéns! Você acertou tudo! Próximo jogador...</b></div>';
-      tentativas = [];
-      document.getElementById('historico-tentativas').style.display = 'none';
-      rodada++;
-      setLoading(false);
-      sortearJogador();
+  },
+  
+  showMessage(message, isSuccess) {
+    const type = isSuccess ? 'green' : 'red';
+    this.elements.feedback.innerHTML = `<div class="feedback ${type}"><b>${message}</b></div>`;
+  },
+  
+  displayCorrectPlayer() {
+    const player = gameState.correctPlayer;
+    this.elements.playerDetails.style.display = 'block';
+    const age = player.birthdate ? Utils.calcAge(player.birthdate) : '-';
+    this.elements.playerDetails.innerHTML = `
+      <h3>Jogador correto: ${player.name}</h3>
+      <p>Idade: ${age} anos</p>
+      <p>Clube: ${player.club}</p>
+      <p>Liga: ${player.league || 'N/A'}</p>
+      <p>Posição: ${player.position}</p>
+      <p>Nacionalidade: ${player.nationality}</p>
+    `;
+  },
+  
+  hidePlayerDetails() {
+    this.elements.playerDetails.style.display = 'none';
+  },
+  
+  updateAttemptsHistory() {
+    const attempts = gameState.attempts;
+    const container = this.elements.historyContainer;
+    
+    if (attempts.length) {
+      container.style.display = 'block';
+      container.innerHTML = '<h3>Histórico de Tentativas</h3>' +
+        attempts.map((t, i) =>
+          `<div class="tentativa">
+            <h4>Tentativa ${attempts.length - i}: ${t.jogador}</h4>
+            <div class="tentativa-resultados">
+              ${t.resultados.map(r=>
+                `<div class="feedback-small ${r.color}"><b>${r.label}:</b> ${r.value}</div>`
+              ).join('')}
+            </div>
+          </div>`
+        ).join('');
     } else {
-      rodada++;
-      vidas--;
-      atualizarStatus();
-      if (vidas <= 0) return endGame();
-      setLoading(false);
+      container.style.display = 'none';
     }
-    selectedSuggestion = null;
-    chooseBtn.disabled = true;
-    suggestions.innerHTML = '';
-    input.value = '';
-    if (mode === 'dificil' && !fimDeJogo) startTimer();
-  });
-
-  // Funções auxiliares
-  function calcAge(birth) {
-    const h = new Date(), n = new Date(birth);
-    let age = h.getFullYear() - n.getFullYear();
-    const m = h.getMonth() - n.getMonth(); if (m < 0 || (m === 0 && h.getDate() < n.getDate())) age--;
-    return age;
+  },
+  
+  resetUI() {
+    this.elements.input.disabled = false;
+    this.elements.chooseBtn.innerText = 'Escolher';
+    this.elements.feedback.innerHTML = '';
+    this.hidePlayerDetails();
+    this.elements.historyContainer.style.display = 'none';
+    this.clearSuggestions();
+    this.elements.input.value = '';
   }
+};
 
-  function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-  function startTimer() {
-    clearTimer();
-    timeLeft = 20;
-    document.getElementById('timer').textContent = `Tempo: ${timeLeft}s`;
-    timerInterval = setInterval(() => {
-      timeLeft--;
-      document.getElementById('timer').textContent = `Tempo: ${timeLeft}s`;
-      if (timeLeft <= 0) {
-        clearTimer();
-        feedback.innerHTML = '<div class="feedback red"><b>Tempo esgotado!</b></div>';
-        vidas--;
-        atualizarStatus();
-        if (vidas <= 0) endGame(); else sortearJogador();
+// Gerenciador do jogo
+const GameManager = {
+  initialize() {
+    UI.initialize();
+    this.setupEventListeners();
+    this.startGame(); // Inicia o jogo diretamente
+  },
+  
+  setupEventListeners() {
+    // Toggle de modo de jogo
+    if (UI.elements.modeToggle) {
+      UI.elements.modeToggle.addEventListener('change', (e) => {
+        gameState.mode = e.target.checked ? 'dificil' : 'normal';
+        
+        // Atualizar classes do body para mudar o visual
+        document.body.classList.toggle('difficult-mode', e.target.checked);
+        document.body.classList.toggle('normal-mode', !e.target.checked);
+        
+        // Resetar o temporizador se estiver ativo
+        this.stopTimer();
+        
+        // Reiniciar o jogo com o novo modo
+        this.restartGame();
+      });
+    }
+    
+    // Tutorial
+    UI.elements.tutorialBtn.addEventListener('click', () => {
+      UI.elements.tutorialModal.style.display = 'block';
+    });
+    
+    UI.elements.closeBtn.addEventListener('click', () => {
+      UI.elements.tutorialModal.style.display = 'none';
+    });
+    
+    window.addEventListener('click', e => {
+      if (e.target === UI.elements.tutorialModal) {
+        UI.elements.tutorialModal.style.display = 'none';
       }
-    }, 1000);
-  }
-
-  function clearTimer() { if (timerInterval) clearInterval(timerInterval); }
-
-  async function carregarJogadoresEIniciar() {
-    setLoading(true);
+    });
+    
+    // Input e sugestões
+    UI.elements.input.addEventListener('input', () => {
+      const query = Utils.normalizeText(UI.elements.input.value.trim());
+      UI.clearSuggestions();
+      gameState.selectedPlayer = null;
+      UI.elements.chooseBtn.disabled = true;
+      
+      if (query.length < 3) return;
+      
+      const filteredPlayers = gameState.players
+        .filter(player => 
+          Utils.normalizeText(player.name).includes(query) ||
+          Utils.normalizeText(player.club).includes(query) ||
+          Utils.normalizeText(player.nationality).includes(query)
+        )
+        .slice(0, 5);
+      
+      filteredPlayers.forEach(player => {
+        const li = document.createElement('li');
+        li.textContent = `${player.name} (${player.nationality})`;
+        li.onclick = () => {
+          UI.elements.suggestions.querySelectorAll('li').forEach(node => 
+            node.classList.remove('selected')
+          );
+          li.classList.add('selected');
+          gameState.selectedPlayer = player;
+          UI.elements.chooseBtn.disabled = false;
+        };
+        UI.elements.suggestions.appendChild(li);
+      });
+    });
+    
+    // Botão de escolha
+    UI.elements.chooseBtn.addEventListener('click', async () => {
+      if (gameState.gameOver && UI.elements.chooseBtn.innerText === 'Reiniciar') {
+        return this.restartGame();
+      }
+      
+      if (gameState.gameOver || !gameState.selectedPlayer || !gameState.correctPlayer) {
+        return;
+      }
+      
+      this.stopTimer();
+      UI.elements.feedback.innerHTML = '';
+      UI.hidePlayerDetails();
+      UI.setLoading(true);
+      await Utils.delay(600);
+      
+      const results = this.comparePlayerSelection(
+        gameState.selectedPlayer, 
+        gameState.correctPlayer
+      );
+      
+      UI.showFeedback(results);
+      
+      gameState.attempts.unshift({
+        jogador: gameState.selectedPlayer.name,
+        resultados: results
+      });
+      UI.updateAttemptsHistory();
+      
+      if (results.every(r => r.color === 'green')) {
+        await this.handleCorrectGuess();
+      } else {
+        await this.handleIncorrectGuess();
+      }
+      
+      gameState.selectedPlayer = null;
+      UI.elements.chooseBtn.disabled = true;
+      UI.clearSuggestions();
+      UI.elements.input.value = '';
+      
+      if (gameState.mode === 'dificil' && !gameState.gameOver) {
+        this.startTimer();
+      }
+    });
+  },
+  
+  async handleCorrectGuess() {
+    gameState.wins++;
+    gameState.lives += 3;
+    UI.displayCorrectPlayer();
+    await Utils.delay(1800);
+    UI.showMessage('Parabéns! Você acertou tudo! Próximo jogador...', true);
+    gameState.attempts = [];
+    UI.elements.historyContainer.style.display = 'none';
+    gameState.round++;
+    UI.setLoading(false);
+    this.selectRandomPlayer();
+  },
+  
+  async handleIncorrectGuess() {
+    gameState.round++;
+    gameState.lives--;
+    UI.updateGameStatus();
+    
+    if (gameState.lives <= 0) {
+      return this.endGame();
+    }
+    
+    UI.setLoading(false);
+  },
+  
+  comparePlayerSelection(selectedPlayer, correctPlayer) {
+    const results = [];
+    
+    // Idade
+    let selectedAge = '-', correctAge = '-', ageColor = 'red';
+    if (selectedPlayer.birthdate) selectedAge = Utils.calcAge(selectedPlayer.birthdate);
+    if (correctPlayer.birthdate) correctAge = Utils.calcAge(correctPlayer.birthdate);
+    
+    if (selectedAge === correctAge) ageColor = 'green';
+    else if (Math.abs(selectedAge - correctAge) <= 2) ageColor = 'orange';
+    
+    results.push({
+      label: 'Idade',
+      value: `${selectedAge} anos`,
+      correct: `${correctAge} anos`,
+      color: ageColor
+    });
+    
+    // Clube
+    let clubColor = 'red';
+    if (Utils.normalizeText(selectedPlayer.club) === Utils.normalizeText(correctPlayer.club)) {
+      clubColor = 'green';
+    } else if ((correctPlayer.past_clubs || []).some(club => 
+      Utils.normalizeText(club) === Utils.normalizeText(selectedPlayer.club)
+    )) {
+      clubColor = 'orange';
+    }
+    
+    results.push({
+      label: 'Clube',
+      value: selectedPlayer.club,
+      correct: correctPlayer.club,
+      color: clubColor
+    });
+    
+    // Liga
+    let leagueColor = 'red';
+    const selectedLeague = selectedPlayer.league || 'Desconhecida';
+    const correctLeague = correctPlayer.league || 'Desconhecida';
+    
+    if (Utils.normalizeText(selectedLeague) === Utils.normalizeText(correctLeague)) {
+      leagueColor = 'green';
+    } else if ((correctPlayer.past_clubs || []).some(club => {
+      const pastClub = gameState.players.find(p => p.name === club);
+      return pastClub && Utils.normalizeText(pastClub.league || '') === Utils.normalizeText(selectedLeague);
+    })) {
+      leagueColor = 'orange';
+    }
+    
+    results.push({
+      label: 'Liga',
+      value: selectedLeague,
+      correct: correctLeague,
+      color: leagueColor
+    });
+    
+    // Posição
+    const positionColor = Utils.normalizeText(selectedPlayer.position) === 
+                          Utils.normalizeText(correctPlayer.position) 
+                          ? 'green' : 'red';
+    
+    results.push({
+      label: 'Posição',
+      value: selectedPlayer.position,
+      correct: correctPlayer.position,
+      color: positionColor
+    });
+    
+    // Nacionalidade
+    const nationalityColor = Utils.normalizeText(selectedPlayer.nationality) === 
+                             Utils.normalizeText(correctPlayer.nationality) 
+                             ? 'green' : 'red';
+    
+    results.push({
+      label: 'Nacionalidade',
+      value: selectedPlayer.nationality,
+      correct: correctPlayer.nationality,
+      color: nationalityColor
+    });
+    
+    return results;
+  },
+  
+  async startGame() {
+    UI.setLoading(true);
     try {
-      const resp = await fetch('players.json');
-      players = await resp.json();
-      if (mode === 'normal') {
-        players = players.filter(p => !['Retired','Deceased','Free Agent','Sem liga'].includes(p.club));
+      await this.loadPlayers();
+      this.selectRandomPlayer();
+      gameState.attempts = [];
+      UI.updateGameStatus();
+    } catch (error) {
+      console.error('Erro ao carregar jogadores:', error);
+      UI.showMessage('Erro ao carregar jogadores.', false);
+      UI.setLoading(false);
+    }
+  },
+  
+  async loadPlayers() {
+    try {
+      const response = await fetch('players.json');
+      
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
       }
-    } catch (e) {
-      alert('Erro ao carregar jogadores.');
-      setLoading(false);
+      
+      let players = await response.json();
+      
+      if (gameState.mode === 'normal') {
+        players = players.filter(player => 
+          !['Retired', 'Deceased', 'Free Agent', 'Sem liga'].includes(player.club)
+        );
+      }
+      
+      gameState.players = players;
+      UI.setLoading(false);
+    } catch (error) {
+      console.error('Erro ao carregar jogadores:', error);
+      throw error;
+    }
+  },
+  
+  selectRandomPlayer() {
+    UI.setLoading(true);
+    
+    if (!gameState.players.length) {
+      UI.setLoading(false);
+      UI.showMessage('Lista de jogadores vazia', false);
       return;
     }
-    setLoading(false);
-    sortearJogador();
-    tentativas = [];
-  }
-
-  function sortearJogador() {
-    setLoading(true);
-    if (!players.length) { setLoading(false); alert('Lista vazia'); return; }
-    correctPlayer = players[Math.floor(Math.random() * players.length)];
-    setLoading(false);
-    atualizarStatus();
-    if (mode === 'dificil') startTimer();
-  }
-
-  function setLoading(state) {
-    document.getElementById('loading').style.display = state ? 'inline' : 'none';
-    chooseBtn.disabled = state;
-    input.disabled = state;
-    if (!state && chooseBtn.innerText === 'Reiniciar') chooseBtn.innerText = 'Escolher';
-  }
-
-  function atualizarStatus() {
-    document.getElementById('round-info').textContent =
-      `Rodada: ${rodada} | Acertos: ${acertos} | Vidas: ${vidas} | Recorde: ${recorde}`;
-  }
-
-  function atualizarHistoricoTentativas() {
-    const el = document.getElementById('historico-tentativas');
-    if (tentativas.length) {
-      el.style.display = 'block';
-      el.innerHTML = '<h3>Histórico de Tentativas</h3>' +
-        tentativas.map((t,i) =>
-          `<div class="tentativa"><h4>Tentativa ${i+1}: ${t.jogador}</h4><div class="tentativa-resultados">` +
-          t.resultados.map(r=>`<div class="feedback-small ${r.color}"><b>${r.label}:</b> ${r.value}</div>`).join('') +
-          '</div></div>'
-        ).join('');
-    } else el.style.display = 'none';
-  }
-
-  function displayCorrect() {
-    playerDetails.style.display = 'block';
-    const age = correctPlayer.birthdate ? calcAge(correctPlayer.birthdate) : '-';
-    playerDetails.innerHTML = `<h3>Jogador correto: ${correctPlayer.name}</h3>
-      <p>Idade: ${age} anos</p>
-      <p>Clube: ${correctPlayer.club}</p>
-      <p>Liga: ${correctPlayer.league}</p>
-      <p>Posição: ${correctPlayer.position}</p>
-      <p>Nacionalidade: ${correctPlayer.nationality}</p>`;
-  }
-
-  function endGame() {
-    fimDeJogo = true;
-    clearTimer();
-    displayCorrect();
-    chooseBtn.innerText = 'Reiniciar';
-    chooseBtn.disabled = false;
-    input.disabled = true;
-    if (acertos > recorde) {
-      recorde = acertos;
-      localStorage.setItem('recorde_futebol', recorde);
-      feedback.innerHTML = `<div class='feedback green'><b>Fim de jogo! Novo recorde: ${recorde} acertos!</b></div>`;
-    } else {
-      feedback.innerHTML = `<div class='feedback red'><b>Fim de jogo! Sua pontuação: ${acertos}. Recorde: ${recorde}</b></div>`;
+    
+    gameState.correctPlayer = gameState.players[
+      Math.floor(Math.random() * gameState.players.length)
+    ];
+    
+    UI.setLoading(false);
+    UI.updateGameStatus();
+    
+    if (gameState.mode === 'dificil') {
+      this.startTimer();
     }
+  },
+  
+  startTimer() {
+    this.stopTimer();
+    gameState.timeLeft = 20;
+    UI.updateTimer(gameState.timeLeft);
+    
+    gameState.timerInterval = setInterval(() => {
+      gameState.timeLeft--;
+      UI.updateTimer(gameState.timeLeft);
+      
+      if (gameState.timeLeft <= 0) {
+        this.stopTimer();
+        UI.showMessage('Tempo esgotado!', false);
+        gameState.lives--;
+        UI.updateGameStatus();
+        
+        if (gameState.lives <= 0) {
+          this.endGame();
+        } else {
+          this.selectRandomPlayer();
+        }
+      }
+    }, 1000);
+  },
+  
+  stopTimer() {
+    if (gameState.timerInterval) {
+      clearInterval(gameState.timerInterval);
+      gameState.timerInterval = null;
+    }
+  },
+  
+  endGame() {
+    gameState.gameOver = true;
+    this.stopTimer();
+    UI.displayCorrectPlayer();
+    UI.elements.chooseBtn.innerText = 'Reiniciar';
+    UI.elements.chooseBtn.disabled = false;
+    UI.elements.input.disabled = true;
+    
+    if (gameState.wins > gameState.record) {
+      gameState.record = gameState.wins;
+      localStorage.setItem('recorde_futebol', gameState.record);
+      UI.showMessage(`Fim de jogo! Novo recorde: ${gameState.record} acertos!`, true);
+    } else {
+      UI.showMessage(`Fim de jogo! Sua pontuação: ${gameState.wins}. Recorde: ${gameState.record}`, false);
+    }
+  },
+  
+  restartGame() {
+    gameState.resetGame();
+    UI.resetUI();
+    this.startGame();
   }
+};
 
-  function reiniciarJogo() {
-    rodada = 1; acertos = 0; vidas = 10; fimDeJogo = false; tentativas = [];
-    input.disabled = false;
-    chooseBtn.innerText = 'Escolher';
-    feedback.innerHTML = '';
-    playerDetails.style.display = 'none';
-    document.getElementById('historico-tentativas').style.display = 'none';
-    atualizarStatus();
-    carregarJogadoresEIniciar();
-  }
+// Inicializar o jogo quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', () => {
+  GameManager.initialize();
 });
