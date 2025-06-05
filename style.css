@@ -1,11 +1,12 @@
 body {
-    font-family: Arial, sans-serif;
-    background: #f3f7fa;
+    font-family: 'Poppins', Arial, sans-serif;
+    background: linear-gradient(180deg, #f0f4ff, #e3f2fd);
     margin: 0;
     padding: 0;
+    min-height: 100vh;
 }
 .container {
-    max-width: 500px;
+    max-width: 600px;
     margin: 40px auto;
     background: #fff;
     border-radius: 12px;
@@ -317,6 +318,31 @@ button:disabled {
     border: 1px solid #ff9800;
 }
 
+/* Estilos para o ranking pessoal */
+#ranking-container {
+    margin-top: 20px;
+    padding: 15px;
+    background: #e3f2fd;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    text-align: left;
+}
+
+#ranking-container h3 {
+    color: #1976d2;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+#ranking-list {
+    padding-left: 20px;
+    margin: 0;
+}
+
+#ranking-list li {
+    margin-bottom: 6px;
+}
+
 /* Estilos para o modal de tutorial */
 .modal {
     display: none;
@@ -418,4 +444,12 @@ button:disabled {
 
 .info-btn:hover {
     background: #e65100;
+}
+
+@media (max-width: 600px) {
+    .container {
+        width: 95%;
+        padding: 20px;
+        margin: 20px auto;
+    }
 }

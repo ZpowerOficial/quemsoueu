@@ -11,6 +11,7 @@ const gameState = {
   lives: 10,
   gameOver: false,
   record: Number(localStorage.getItem('recorde_futebol')) || 0,
+  ranking: JSON.parse(localStorage.getItem('ranking_futebol') || '[]'),
   attempts: [],
   timerInterval: null,
   timeLeft: 20,
@@ -66,7 +67,9 @@ const UI = {
       closeBtn: document.querySelector('#tutorial-modal .close'),
       roundInfo: document.getElementById('round-info'),
       loading: document.getElementById('loading'),
-      modeToggle: document.getElementById('mode-toggle')
+      modeToggle: document.getElementById('mode-toggle'),
+      rankingContainer: document.getElementById('ranking-container'),
+      rankingList: document.getElementById('ranking-list')
     };
     
     // Criar timer para modo difícil se não existir
@@ -96,6 +99,7 @@ const UI = {
     
     // Iniciar com o modo normal
     document.body.classList.add('normal-mode');
+    this.updateRanking();
   },
   
   setLoading(state) {
@@ -171,6 +175,14 @@ const UI = {
       container.style.display = 'none';
     }
   },
+
+  updateRanking() {
+    const list = this.elements.rankingList;
+    if (!list) return;
+    list.innerHTML = gameState.ranking
+      .map((r, i) => `<li>${i + 1}º - ${r.score} acertos (${r.date})</li>`)
+      .join('');
+  },
   
   resetUI() {
     this.elements.input.disabled = false;
@@ -180,6 +192,7 @@ const UI = {
     this.elements.historyContainer.style.display = 'none';
     this.clearSuggestions();
     this.elements.input.value = '';
+    this.updateRanking();
   }
 };
 
@@ -507,7 +520,7 @@ const GameManager = {
     UI.elements.chooseBtn.innerText = 'Reiniciar';
     UI.elements.chooseBtn.disabled = false;
     UI.elements.input.disabled = true;
-    
+
     if (gameState.wins > gameState.record) {
       gameState.record = gameState.wins;
       localStorage.setItem('recorde_futebol', gameState.record);
@@ -515,6 +528,16 @@ const GameManager = {
     } else {
       UI.showMessage(`Fim de jogo! Sua pontuação: ${gameState.wins}. Recorde: ${gameState.record}`, false);
     }
+
+    // Atualizar ranking pessoal
+    gameState.ranking.push({
+      score: gameState.wins,
+      date: new Date().toLocaleDateString('pt-BR')
+    });
+    gameState.ranking.sort((a, b) => b.score - a.score);
+    gameState.ranking = gameState.ranking.slice(0, 5);
+    localStorage.setItem('ranking_futebol', JSON.stringify(gameState.ranking));
+    UI.updateRanking();
   },
   
   restartGame() {
