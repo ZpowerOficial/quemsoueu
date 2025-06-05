@@ -111,6 +111,9 @@ const UI = {
     document.body.classList.toggle('normal-mode', gameState.mode !== 'dificil');
     if (this.elements.modeToggle) this.elements.modeToggle.checked = gameState.mode === 'dificil';
 
+    // Iniciar com o modo normal
+    document.body.classList.add('normal-mode');
+
     const storedTheme = localStorage.getItem('qs_dark_mode');
     gameState.darkMode = storedTheme === 'true';
     document.body.classList.toggle('dark-theme', gameState.darkMode);
@@ -122,6 +125,8 @@ const UI = {
 
     gameState.quickMode = localStorage.getItem('qs_quick_mode') === 'true';
     if (this.elements.quickToggle) this.elements.quickToggle.checked = gameState.quickMode;
+
+    if (this.elements.legendToggle) this.elements.legendToggle.checked = gameState.legendMode;
     this.updateRanking();
   },
   
