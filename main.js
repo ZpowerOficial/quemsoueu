@@ -123,8 +123,6 @@ const UI = {
 
     gameState.quickMode = localStorage.getItem('qs_quick_mode') === 'true';
     if (this.elements.quickToggle) this.elements.quickToggle.checked = gameState.quickMode;
-
-    if (this.elements.legendToggle) this.elements.legendToggle.checked = gameState.legendMode;
     this.updateRanking();
   },
   
@@ -140,8 +138,6 @@ const UI = {
   updateGameStatus() {
     const modeLabel = gameState.mode === 'dificil' ? 'Difícil' : 'Normal';
     const legendLabel = gameState.legendMode ? 'Lendas' : 'Atuais';
-    this.elements.roundInfo.textContent =
-      `Rodada: ${gameState.round} | Acertos: ${gameState.wins} | Vidas: ${gameState.lives} | Recorde: ${gameState.record} | ${modeLabel} | ${legendLabel}`;
     const quickLabel = gameState.quickMode ? 'Rápido' : 'Padrão';
     this.elements.roundInfo.textContent =
       `Rodada: ${gameState.round} | Acertos: ${gameState.wins} | Vidas: ${gameState.lives} | Recorde: ${gameState.record} | ${modeLabel} | ${legendLabel} | ${quickLabel}`;
