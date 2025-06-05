@@ -103,14 +103,19 @@ const UI = {
       this.elements.historyContainer = document.getElementById('historico-tentativas');
     }
     
-    // Iniciar com o modo normal
-    document.body.classList.add('normal-mode');
+    // Iniciar com o modo salvo ou normal
+    gameState.mode = localStorage.getItem('qs_game_mode') || 'normal';
+    document.body.classList.toggle('difficult-mode', gameState.mode === 'dificil');
+    document.body.classList.toggle('normal-mode', gameState.mode !== 'dificil');
+    if (this.elements.modeToggle) this.elements.modeToggle.checked = gameState.mode === 'dificil';
+
     const storedTheme = localStorage.getItem('qs_dark_mode');
     gameState.darkMode = storedTheme === 'true';
     document.body.classList.toggle('dark-theme', gameState.darkMode);
     if (this.elements.themeToggle) this.elements.themeToggle.checked = gameState.darkMode;
 
     gameState.legendMode = localStorage.getItem('qs_legend_mode') === 'true';
+    document.body.classList.toggle('legend-mode', gameState.legendMode);
     if (this.elements.legendToggle) this.elements.legendToggle.checked = gameState.legendMode;
     this.updateRanking();
   },
@@ -125,7 +130,10 @@ const UI = {
   },
   
   updateGameStatus() {
-    this.elements.roundInfo.textContent = `Rodada: ${gameState.round} | Acertos: ${gameState.wins} | Vidas: ${gameState.lives} | Recorde: ${gameState.record}`;
+    const modeLabel = gameState.mode === 'dificil' ? 'Difícil' : 'Normal';
+    const legendLabel = gameState.legendMode ? 'Lendas' : 'Atuais';
+    this.elements.roundInfo.textContent =
+      `Rodada: ${gameState.round} | Acertos: ${gameState.wins} | Vidas: ${gameState.lives} | Recorde: ${gameState.record} | ${modeLabel} | ${legendLabel}`;
   },
   
   updateTimer(time) {
@@ -199,7 +207,7 @@ const UI = {
     const list = this.elements.rankingList;
     if (!list) return;
     list.innerHTML = gameState.ranking
-      .map((r, i) => `<li>${i + 1}º - ${r.score} acertos (${r.date})</li>`)
+      .map((r, i) => `<li>${i + 1}º - ${r.score} acertos [${r.mode || 'normal'}] (${r.date})</li>`)
       .join('');
   },
   
@@ -229,15 +237,12 @@ const GameManager = {
     if (UI.elements.modeToggle) {
       UI.elements.modeToggle.addEventListener('change', (e) => {
         gameState.mode = e.target.checked ? 'dificil' : 'normal';
-        
-        // Atualizar classes do body para mudar o visual
+        localStorage.setItem('qs_game_mode', gameState.mode);
+
         document.body.classList.toggle('difficult-mode', e.target.checked);
         document.body.classList.toggle('normal-mode', !e.target.checked);
-        
-        // Resetar o temporizador se estiver ativo
+
         this.stopTimer();
-        
-        // Reiniciar o jogo com o novo modo
         this.restartGame();
       });
     }
@@ -246,6 +251,7 @@ const GameManager = {
       UI.elements.legendToggle.addEventListener('change', (e) => {
         gameState.legendMode = e.target.checked;
         localStorage.setItem('qs_legend_mode', gameState.legendMode);
+        document.body.classList.toggle('legend-mode', gameState.legendMode);
         this.restartGame();
       });
     }
@@ -589,7 +595,8 @@ const GameManager = {
     // Atualizar ranking pessoal
     gameState.ranking.push({
       score: gameState.wins,
-      date: new Date().toLocaleDateString('pt-BR')
+      date: new Date().toLocaleDateString('pt-BR'),
+      mode: `${gameState.mode}${gameState.legendMode ? '/lendas' : ''}`
     });
     gameState.ranking.sort((a, b) => b.score - a.score);
     gameState.ranking = gameState.ranking.slice(0, 5);
