@@ -110,10 +110,8 @@ const UI = {
     document.body.classList.toggle('difficult-mode', gameState.mode === 'dificil');
     document.body.classList.toggle('normal-mode', gameState.mode !== 'dificil');
     if (this.elements.modeToggle) this.elements.modeToggle.checked = gameState.mode === 'dificil';
-
     // Iniciar com o modo normal
     document.body.classList.add('normal-mode');
-
     const storedTheme = localStorage.getItem('qs_dark_mode');
     gameState.darkMode = storedTheme === 'true';
     document.body.classList.toggle('dark-theme', gameState.darkMode);
@@ -142,6 +140,8 @@ const UI = {
   updateGameStatus() {
     const modeLabel = gameState.mode === 'dificil' ? 'Difícil' : 'Normal';
     const legendLabel = gameState.legendMode ? 'Lendas' : 'Atuais';
+    this.elements.roundInfo.textContent =
+      `Rodada: ${gameState.round} | Acertos: ${gameState.wins} | Vidas: ${gameState.lives} | Recorde: ${gameState.record} | ${modeLabel} | ${legendLabel}`;
     const quickLabel = gameState.quickMode ? 'Rápido' : 'Padrão';
     this.elements.roundInfo.textContent =
       `Rodada: ${gameState.round} | Acertos: ${gameState.wins} | Vidas: ${gameState.lives} | Recorde: ${gameState.record} | ${modeLabel} | ${legendLabel} | ${quickLabel}`;

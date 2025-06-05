@@ -28,6 +28,7 @@
 - **Sem Acentuação**: A pesquisa ignora acentos e caracteres especiais
 - **Sistema de Vidas**: Receba vidas extras ao acertar jogadores
 - **Botão de Reinício**: Comece um novo jogo a qualquer momento
+- **Modos de Jogo**: Normal, Difícil (com tempo) e Lendas, todos compatíveis com tema escuro
 - **Tema Claro/Escuro**: Alternância de tema para jogar confortavelmente
 - **Modos de Jogo**: Normal, Difícil (com tempo), Rápido e Lendas, todos compatíveis com tema escuro
 
