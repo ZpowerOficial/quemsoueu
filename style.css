@@ -446,10 +446,37 @@ button:disabled {
     background: #e65100;
 }
 
+#hint {
+    font-weight: 600;
+    color: #ff9800;
+}
+body.dark-theme #hint {
+    color: #ffb74d;
+}
+
 @media (max-width: 600px) {
     .container {
         width: 95%;
         padding: 20px;
         margin: 20px auto;
     }
+}
+
+/* Tema escuro */
+body.dark-theme {
+    background: #121212;
+    color: #eee;
+}
+body.dark-theme .container {
+    background: #1e1e1e;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+}
+body.dark-theme #instructions {
+    background: #333;
+}
+body.dark-theme button {
+    background: #424242;
+}
+body.dark-theme button:hover {
+    background: #616161;
 }

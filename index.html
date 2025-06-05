@@ -23,7 +23,23 @@
               <span class="slider round"></span>
             </label>
             <span class="mode-label">Modo Difícil</span>
-          </div>          
+          </div>
+        <div class="mode-toggle-container">
+            <span class="mode-label">Atuais</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="legend-toggle">
+              <span class="slider round"></span>
+            </label>
+            <span class="mode-label">Lendas</span>
+        </div>
+        <div class="mode-toggle-container">
+            <span class="mode-label">Claro</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="theme-toggle">
+              <span class="slider round"></span>
+            </label>
+            <span class="mode-label">Escuro</span>
+        </div>
 
         <!-- Modal Tutorial -->
         <div id="tutorial-modal" class="modal">
@@ -62,7 +78,9 @@
         <input type="text" id="player-input" placeholder="Digite o nome do jogador...">
         <ul id="suggestions"></ul>
         <button id="choose-btn" disabled>Escolher</button>
+        <button id="hint-btn" class="info-btn">Dica</button>
         <div id="feedback"></div>
+        <div id="hint" style="margin-top:10px;"></div>
         <div id="player-details" style="display:none;"></div>
         <div id="ranking-container">
             <h3>Seus Melhores Recordes</h3>
