@@ -16,14 +16,40 @@
             <button id="tutorial-btn" class="info-btn">Como Jogar</button>
         </div>
 
-        <div class="mode-toggle-container">
-            <span class="mode-label">Modo Normal</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="mode-toggle">
-              <span class="slider round"></span>
-            </label>
-            <span class="mode-label">Modo Difícil</span>
-          </div>          
+        <div id="options-bar" class="options-bar">
+            <div class="mode-toggle-container">
+                <span class="mode-label">Modo Normal</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="mode-toggle">
+                    <span class="slider round"></span>
+                </label>
+                <span class="mode-label">Modo Difícil</span>
+            </div>
+            <div class="mode-toggle-container">
+                <span class="mode-label">Padrão</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="quick-toggle">
+                    <span class="slider round"></span>
+                </label>
+                <span class="mode-label">Rápido</span>
+            </div>
+            <div class="mode-toggle-container">
+                <span class="mode-label">Atuais</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="legend-toggle">
+                    <span class="slider round"></span>
+                </label>
+                <span class="mode-label">Lendas</span>
+            </div>
+            <div class="mode-toggle-container">
+                <span class="mode-label">Claro</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider round"></span>
+                </label>
+                <span class="mode-label">Escuro</span>
+            </div>
+        </div>
 
         <!-- Modal Tutorial -->
         <div id="tutorial-modal" class="modal">
@@ -52,6 +78,16 @@
                         <li>O jogo termina quando acabarem suas vidas</li>
                     </ul>
                 </div>
+                <div class="tutorial-section">
+                    <h3>Modos de jogo</h3>
+                    <ul>
+                        <li><b>Normal:</b> sem limite de tempo, apenas jogadores em atividade.</li>
+                        <li><b>Difícil:</b> 20&nbsp;segundos por rodada.</li>
+                        <li><b>Lendas:</b> sorteia apenas jogadores históricos ou aposentados.</li>
+                        <li><b>Rápido:</b> tempo diminui a cada rodada.</li>
+                        <li>Você pode alternar entre tema claro ou escuro a qualquer momento.</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -62,7 +98,9 @@
         <input type="text" id="player-input" placeholder="Digite o nome do jogador...">
         <ul id="suggestions"></ul>
         <button id="choose-btn" disabled>Escolher</button>
+        <button id="hint-btn" class="info-btn">Dica</button>
         <div id="feedback"></div>
+        <div id="hint" style="margin-top:10px;"></div>
         <div id="player-details" style="display:none;"></div>
         <div id="ranking-container">
             <h3>Seus Melhores Recordes</h3>
