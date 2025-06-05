@@ -5,6 +5,7 @@ const gameState = {
   mode: 'normal',
   legendMode: false,
   darkMode: false,
+  quickMode: false,
   players: [],
   selectedPlayer: null,
   correctPlayer: null,
@@ -70,6 +71,7 @@ const UI = {
       roundInfo: document.getElementById('round-info'),
       loading: document.getElementById('loading'),
       modeToggle: document.getElementById('mode-toggle'),
+      quickToggle: document.getElementById('quick-toggle'),
       legendToggle: document.getElementById('legend-toggle'),
       themeToggle: document.getElementById('theme-toggle'),
       hintBtn: document.getElementById('hint-btn'),
@@ -108,7 +110,8 @@ const UI = {
     document.body.classList.toggle('difficult-mode', gameState.mode === 'dificil');
     document.body.classList.toggle('normal-mode', gameState.mode !== 'dificil');
     if (this.elements.modeToggle) this.elements.modeToggle.checked = gameState.mode === 'dificil';
-
+    // Iniciar com o modo normal
+    document.body.classList.add('normal-mode');
     const storedTheme = localStorage.getItem('qs_dark_mode');
     gameState.darkMode = storedTheme === 'true';
     document.body.classList.toggle('dark-theme', gameState.darkMode);
@@ -116,6 +119,11 @@ const UI = {
 
     gameState.legendMode = localStorage.getItem('qs_legend_mode') === 'true';
     document.body.classList.toggle('legend-mode', gameState.legendMode);
+    if (this.elements.legendToggle) this.elements.legendToggle.checked = gameState.legendMode;
+
+    gameState.quickMode = localStorage.getItem('qs_quick_mode') === 'true';
+    if (this.elements.quickToggle) this.elements.quickToggle.checked = gameState.quickMode;
+
     if (this.elements.legendToggle) this.elements.legendToggle.checked = gameState.legendMode;
     this.updateRanking();
   },
@@ -134,6 +142,9 @@ const UI = {
     const legendLabel = gameState.legendMode ? 'Lendas' : 'Atuais';
     this.elements.roundInfo.textContent =
       `Rodada: ${gameState.round} | Acertos: ${gameState.wins} | Vidas: ${gameState.lives} | Recorde: ${gameState.record} | ${modeLabel} | ${legendLabel}`;
+    const quickLabel = gameState.quickMode ? 'Rápido' : 'Padrão';
+    this.elements.roundInfo.textContent =
+      `Rodada: ${gameState.round} | Acertos: ${gameState.wins} | Vidas: ${gameState.lives} | Recorde: ${gameState.record} | ${modeLabel} | ${legendLabel} | ${quickLabel}`;
   },
   
   updateTimer(time) {
@@ -252,6 +263,14 @@ const GameManager = {
         gameState.legendMode = e.target.checked;
         localStorage.setItem('qs_legend_mode', gameState.legendMode);
         document.body.classList.toggle('legend-mode', gameState.legendMode);
+        this.restartGame();
+      });
+    }
+
+    if (UI.elements.quickToggle) {
+      UI.elements.quickToggle.addEventListener('change', (e) => {
+        gameState.quickMode = e.target.checked;
+        localStorage.setItem('qs_quick_mode', gameState.quickMode);
         this.restartGame();
       });
     }
@@ -548,6 +567,10 @@ const GameManager = {
   startTimer() {
     this.stopTimer();
     gameState.timeLeft = 20;
+    if (gameState.quickMode) {
+      const deduction = (gameState.round - 1) * 2;
+      gameState.timeLeft = Math.max(5, 20 - deduction);
+    }
     UI.updateTimer(gameState.timeLeft);
     
     gameState.timerInterval = setInterval(() => {
@@ -596,7 +619,7 @@ const GameManager = {
     gameState.ranking.push({
       score: gameState.wins,
       date: new Date().toLocaleDateString('pt-BR'),
-      mode: `${gameState.mode}${gameState.legendMode ? '/lendas' : ''}`
+      mode: `${gameState.mode}${gameState.legendMode ? '/lendas' : ''}${gameState.quickMode ? '/desafio' : ''}`
     });
     gameState.ranking.sort((a, b) => b.score - a.score);
     gameState.ranking = gameState.ranking.slice(0, 5);
