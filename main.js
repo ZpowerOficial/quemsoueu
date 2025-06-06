@@ -18,7 +18,13 @@ const gameState = {
   attempts: [],
   timerInterval: null,
   timeLeft: 20,
-  
+  known: {
+    club: false,
+    nationality: false,
+    position: false,
+    league: false
+  },
+
   resetGame() {
     this.round = 1;
     this.wins = 0;
@@ -26,6 +32,7 @@ const gameState = {
     this.gameOver = false;
     this.attempts = [];
     this.timeLeft = 20;
+    this.known = { club: false, nationality: false, position: false, league: false };
   }
 };
 
@@ -349,12 +356,14 @@ const GameManager = {
       await Utils.delay(600);
       
       const results = this.comparePlayerSelection(
-        gameState.selectedPlayer, 
+        gameState.selectedPlayer,
         gameState.correctPlayer
       );
-      
+
       UI.showFeedback(results);
-      
+
+      this.updateKnownAttributes(results);
+
       gameState.attempts.unshift({
         jogador: gameState.selectedPlayer.name,
         resultados: results
@@ -486,14 +495,38 @@ const GameManager = {
     return results;
   },
 
+  updateKnownAttributes(results) {
+    results.forEach(r => {
+      if (r.color === 'green') {
+        switch (r.label) {
+          case 'Clube':
+            gameState.known.club = true;
+            break;
+          case 'Liga':
+            gameState.known.league = true;
+            break;
+          case 'Posição':
+            gameState.known.position = true;
+            break;
+          case 'Nacionalidade':
+            gameState.known.nationality = true;
+            break;
+          default:
+            break;
+        }
+      }
+    });
+  },
+
   generateHint() {
     const p = gameState.correctPlayer;
     if (!p) return '';
     const hints = [];
-    if (p.club) hints.push(`O clube começa com "${p.club.charAt(0)}"`);
-    if (p.nationality) hints.push(`Nacionalidade começa com "${p.nationality.charAt(0)}"`);
-    if (p.position) hints.push(`Posição principal: ${p.position}`);
-    if (p.league) hints.push(`Liga: ${p.league}`);
+    if (p.club && !gameState.known.club) hints.push(`O clube começa com "${p.club.charAt(0)}"`);
+    if (p.nationality && !gameState.known.nationality) hints.push(`Nacionalidade começa com "${p.nationality.charAt(0)}"`);
+    if (p.position && !gameState.known.position) hints.push(`Posição principal: ${p.position}`);
+    if (p.league && !gameState.known.league) hints.push(`Liga: ${p.league}`);
+    if (!hints.length) return 'Sem mais dicas!';
     return hints[Math.floor(Math.random() * hints.length)];
   },
   
@@ -551,7 +584,10 @@ const GameManager = {
     gameState.correctPlayer = gameState.players[
       Math.floor(Math.random() * gameState.players.length)
     ];
-    
+
+    gameState.known = { club: false, nationality: false, position: false, league: false };
+    UI.showHint('');
+
     UI.setLoading(false);
     UI.updateGameStatus();
     
