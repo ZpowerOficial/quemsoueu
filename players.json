@@ -526,8 +526,8 @@
     "id": 39,
     "name": "Ivan Rakitić",
     "birthdate": "1988-03-10",
-    "club": "Monterrey",
-    "league": "Liga MX",
+    "club": "Hajduk Split",
+    "league": "HNL",
     "position": "Midfielder",
     "nationality": "Croatia",
     "past_clubs": [
@@ -991,13 +991,12 @@
     "id": 69,
     "name": "Iker Muniain",
     "birthdate": "1992-12-19",
-    "club": "Retired",
-    "league": "Sem liga",
+    "club": "San Lorenzo",
+    "league": "Argentine Primera División",
     "position": "Midfielder",
     "nationality": "Spain",
     "past_clubs": [
-      "Athletic Bilbao",
-      "Al-Qadisiyah"
+      "Athletic Bilbao"
     ]
   },
   {
