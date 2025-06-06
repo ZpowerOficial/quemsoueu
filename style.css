@@ -212,6 +212,9 @@ body.dark-theme .options-bar {
     justify-content: space-between;
     align-items: center;
 }
+#hint-container {
+    margin-bottom: 10px;
+}
 #loading {
     color: #ff9800;
     font-weight: bold;
