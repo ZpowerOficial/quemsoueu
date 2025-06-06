@@ -102,7 +102,6 @@
   {"id":101, "name":"Victor Osimhen", "birthdate":"1998-12-29", "club":"Napoli", "league":"Serie A", "position":"Forward", "nationality":"Nigeria", "past_clubs":["Ultimate Strikers", "Wolfsburg", "Charleroi", "Lille"]},
   {"id":102, "name":"Riyad Mahrez", "birthdate":"1991-02-21", "club":"Al-Ahli", "league":"Saudi Pro League", "position":"Winger", "nationality":"Algeria", "past_clubs":["Quimper", "Le Havre", "Leicester City", "Manchester City"]},
   {"id":103, "name":"Jamal Musiala", "birthdate":"2003-02-26", "club":"Bayern Munich", "league":"Bundesliga", "position":"Midfielder", "nationality":"Germany", "past_clubs":["Chelsea"]}
-
   {"id":104,"name":"Randal Kolo Muani","birthdate":"1998-12-05","club":"Paris Saint-Germain","league":"Ligue 1","position":"Forward","nationality":"France","past_clubs":["Nantes","Boulogne","Eintracht Frankfurt"]}
   {"id":105,"name":"Gonçalo Ramos","birthdate":"2001-06-20","club":"Paris Saint-Germain","league":"Ligue 1","position":"Forward","nationality":"Portugal","past_clubs":["Benfica"]}
   {"id":106,"name":"Bradley Barcola","birthdate":"2002-09-02","club":"Paris Saint-Germain","league":"Ligue 1","position":"Winger","nationality":"France","past_clubs":["Lyon"]}

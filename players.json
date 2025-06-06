@@ -534,7 +534,8 @@
       "Basel",
       "Schalke 04",
       "Sevilla",
-      "Barcelona"
+      "Barcelona",
+      "Al-Shabab"
     ]
   },
   {
@@ -8628,6 +8629,18 @@
       "Le Havre",
       "Leicester City",
       "Manchester City"
+    ]
+  },
+  {
+    "id": 665,
+    "name": "Jamal Musiala",
+    "birthdate": "2003-02-26",
+    "club": "Bayern Munich",
+    "league": "Bundesliga",
+    "position": "Midfielder",
+    "nationality": "Germany",
+    "past_clubs": [
+      "Chelsea"
     ]
   },
   {
