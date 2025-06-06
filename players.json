@@ -45,12 +45,13 @@
     "id": 4,
     "name": "Kylian Mbappé",
     "birthdate": "1998-12-20",
-    "club": "Paris Saint-Germain",
-    "league": "Ligue 1",
+    "club": "Real Madrid",
+    "league": "La Liga",
     "position": "Forward",
     "nationality": "France",
     "past_clubs": [
-      "Monaco"
+      "Monaco",
+      "Paris Saint-Germain"
     ]
   },
   {
@@ -364,14 +365,15 @@
     "id": 28,
     "name": "Giorgio Chiellini",
     "birthdate": "1984-08-14",
-    "club": "LAFC",
-    "league": "MLS",
+    "club": "Retired",
+    "league": "Sem liga",
     "position": "Defender",
     "nationality": "Italy",
     "past_clubs": [
       "Livorno",
       "Fiorentina",
-      "Juventus"
+      "Juventus",
+      "LAFC"
     ]
   },
   {
@@ -396,23 +398,24 @@
     "id": 30,
     "name": "Keylor Navas",
     "birthdate": "1986-12-15",
-    "club": "Paris Saint-Germain",
-    "league": "Ligue 1",
+    "club": "Newell's Old Boys",
+    "league": "Argentine Primera División",
     "position": "Goalkeeper",
     "nationality": "Costa Rica",
     "past_clubs": [
       "Saprissa",
       "Albacete",
       "Levante",
-      "Real Madrid"
+      "Real Madrid",
+      "Paris Saint-Germain"
     ]
   },
   {
     "id": 31,
     "name": "Raphaël Varane",
     "birthdate": "1993-04-25",
-    "club": "Manchester United",
-    "league": "Premier League",
+    "club": "Retired",
+    "league": "Sem liga",
     "position": "Defender",
     "nationality": "France",
     "past_clubs": [
@@ -451,8 +454,8 @@
     "id": 34,
     "name": "David Luiz",
     "birthdate": "1987-04-22",
-    "club": "Flamengo",
-    "league": "Série A",
+    "club": "Fortaleza",
+    "league": "Brasileirão Série A",
     "position": "Defender",
     "nationality": "Brazil",
     "past_clubs": [
@@ -460,7 +463,8 @@
       "Benfica",
       "Chelsea",
       "Paris Saint-Germain",
-      "Arsenal"
+      "Arsenal",
+      "Flamengo"
     ]
   },
   {
@@ -509,8 +513,8 @@
     "id": 38,
     "name": "Toni Kroos",
     "birthdate": "1990-01-04",
-    "club": "Real Madrid",
-    "league": "La Liga",
+    "club": "Retired",
+    "league": "Sem liga",
     "position": "Midfielder",
     "nationality": "Germany",
     "past_clubs": [
@@ -522,8 +526,8 @@
     "id": 39,
     "name": "Ivan Rakitić",
     "birthdate": "1988-03-10",
-    "club": "Sevilla",
-    "league": "La Liga",
+    "club": "Monterrey",
+    "league": "Liga MX",
     "position": "Midfielder",
     "nationality": "Croatia",
     "past_clubs": [
@@ -552,8 +556,8 @@
     "id": 41,
     "name": "Ángel Di María",
     "birthdate": "1988-02-14",
-    "club": "Benfica",
-    "league": "Primeira Liga",
+    "club": "Rosario Central",
+    "league": "Argentine Primera División",
     "position": "Winger",
     "nationality": "Argentina",
     "past_clubs": [
@@ -562,7 +566,8 @@
       "Real Madrid",
       "Manchester United",
       "Paris Saint-Germain",
-      "Juventus"
+      "Juventus",
+      "Benfica"
     ]
   },
   {
@@ -586,8 +591,8 @@
     "id": 43,
     "name": "Radamel Falcao",
     "birthdate": "1986-02-10",
-    "club": "Rayo Vallecano",
-    "league": "La Liga",
+    "club": "Millonarios",
+    "league": "Primera A",
     "position": "Forward",
     "nationality": "Colombia",
     "past_clubs": [
@@ -597,7 +602,8 @@
       "Monaco",
       "Manchester United",
       "Chelsea",
-      "Galatasaray"
+      "Galatasaray",
+      "Rayo Vallecano"
     ]
   },
   {
@@ -639,8 +645,8 @@
     "id": 46,
     "name": "Olivier Giroud",
     "birthdate": "1986-09-30",
-    "club": "Milan",
-    "league": "Serie A",
+    "club": "LAFC",
+    "league": "MLS",
     "position": "Forward",
     "nationality": "France",
     "past_clubs": [
@@ -648,7 +654,8 @@
       "Tours",
       "Montpellier",
       "Arsenal",
-      "Chelsea"
+      "Chelsea",
+      "Milan"
     ]
   },
   {
@@ -8573,14 +8580,15 @@
     "id": 656,
     "name": "Sergio Ramos",
     "birthdate": "1986-03-30",
-    "club": "Sevilla",
-    "league": "La Liga",
+    "club": "Monterrey",
+    "league": "Liga MX",
     "position": "Defender",
     "nationality": "Spain",
     "past_clubs": [
       "Sevilla",
       "Real Madrid",
-      "Paris Saint-Germain"
+      "Paris Saint-Germain",
+      "Sevilla"
     ]
   },
   {
@@ -8658,5 +8666,48 @@
       "Real Madrid",
       "Fiorentina"
     ]
+  },
+  {
+    "id": 663,
+    "name": "Victor Osimhen",
+    "birthdate": "1998-12-29",
+    "club": "Napoli",
+    "league": "Serie A",
+    "position": "Forward",
+    "nationality": "Nigeria",
+    "past_clubs": [
+      "Ultimate Strikers",
+      "Wolfsburg",
+      "Charleroi",
+      "Lille"
+    ]
+  },
+  {
+    "id": 664,
+    "name": "Riyad Mahrez",
+    "birthdate": "1991-02-21",
+    "club": "Al-Ahli",
+    "league": "Saudi Pro League",
+    "position": "Winger",
+    "nationality": "Algeria",
+    "past_clubs": [
+      "Quimper",
+      "Le Havre",
+      "Leicester City",
+      "Manchester City"
+    ]
+  },
+  {
+    "id": 665,
+    "name": "Jamal Musiala",
+    "birthdate": "2003-02-26",
+    "club": "Bayern Munich",
+    "league": "Bundesliga",
+    "position": "Midfielder",
+    "nationality": "Germany",
+    "past_clubs": [
+      "Chelsea"
+    ]
   }
 ]
+
