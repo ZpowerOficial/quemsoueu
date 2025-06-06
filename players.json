@@ -5387,19 +5387,6 @@
     ]
   },
   {
-    "id": 388,
-    "name": "Paulinho",
-    "birthdate": "2000-07-15",
-    "club": "Atlético Mineiro",
-    "league": "Brasileirão Série A",
-    "position": "Forward",
-    "nationality": "Brazil",
-    "past_clubs": [
-      "Vasco da Gama",
-      "Bayer Leverkusen"
-    ]
-  },
-  {
     "id": 389,
     "name": "Hulk",
     "birthdate": "1986-07-25",
@@ -6030,19 +6017,6 @@
     ]
   },
   {
-    "id": 435,
-    "name": "Villasanti",
-    "birthdate": "1998-06-05",
-    "club": "Grêmio",
-    "league": "Brasileirão Série A",
-    "position": "Midfielder",
-    "nationality": "Paraguay",
-    "past_clubs": [
-      "Cerro Porteno",
-      "Guaraní"
-    ]
-  },
-  {
     "id": 436,
     "name": "Cristaldo",
     "birthdate": "1989-03-15",
@@ -6276,32 +6250,6 @@
     "nationality": "Brazil",
     "past_clubs": [
       "Grêmio"
-    ]
-  },
-  {
-    "id": 451,
-    "name": "Igor Jesus",
-    "birthdate": "2001-02-02",
-    "club": "Botafogo",
-    "league": "Brasileirão Série A",
-    "position": "Forward",
-    "nationality": "Brazil",
-    "past_clubs": [
-      "Shabab Al-Ahli"
-    ]
-  },
-  {
-    "id": 452,
-    "name": "Rafael",
-    "birthdate": "1990-07-09",
-    "club": "Botafogo",
-    "league": "Brasileirão Série A",
-    "position": "Defender",
-    "nationality": "Brazil",
-    "past_clubs": [
-      "Manchester United",
-      "Lyon",
-      "Istanbul Basaksehir"
     ]
   },
   {
@@ -6791,20 +6739,6 @@
       "Alavés",
       "Espanyol",
       "Osasuna"
-    ]
-  },
-  {
-    "id": 487,
-    "name": "Alisson",
-    "birthdate": "1993-06-06",
-    "club": "São Paulo",
-    "league": "Brasileirão Série A",
-    "position": "Midfielder",
-    "nationality": "Brazil",
-    "past_clubs": [
-      "Cruzeiro",
-      "Grêmio",
-      "Al-Jazira"
     ]
   },
   {
@@ -8827,6 +8761,87 @@
       "Real Betis",
       "Napoli"
     ]
+  },
+  {
+    "id": 675,
+    "name": "Rodrigo De Paul",
+    "birthdate": "1994-05-24",
+    "club": "Atlético Madrid",
+    "league": "La Liga",
+    "position": "Midfielder",
+    "nationality": "Argentina",
+    "past_clubs": [
+      "Racing Club",
+      "Valencia",
+      "Udinese"
+    ]
+  },
+  {
+    "id": 676,
+    "name": "Alexis Sánchez",
+    "birthdate": "1988-12-19",
+    "club": "Inter Milan",
+    "league": "Serie A",
+    "position": "Forward",
+    "nationality": "Chile",
+    "past_clubs": [
+      "Cobreloa",
+      "Udinese",
+      "Barcelona",
+      "Arsenal",
+      "Manchester United",
+      "Marseille"
+    ]
+  },
+  {
+    "id": 677,
+    "name": "Ivan Toney",
+    "birthdate": "1996-03-16",
+    "club": "Brentford",
+    "league": "Premier League",
+    "position": "Forward",
+    "nationality": "England",
+    "past_clubs": [
+      "Northampton Town",
+      "Peterborough United"
+    ]
+  },
+  {
+    "id": 678,
+    "name": "Mohammed Kudus",
+    "birthdate": "2000-08-02",
+    "club": "West Ham United",
+    "league": "Premier League",
+    "position": "Midfielder",
+    "nationality": "Ghana",
+    "past_clubs": [
+      "Nordsjaelland",
+      "Ajax"
+    ]
+  },
+  {
+    "id": 679,
+    "name": "Sandro Tonali",
+    "birthdate": "2000-05-08",
+    "club": "Newcastle United",
+    "league": "Premier League",
+    "position": "Midfielder",
+    "nationality": "Italy",
+    "past_clubs": [
+      "Brescia",
+      "AC Milan"
+    ]
+  },
+  {
+    "id": 680,
+    "name": "Khéphren Thuram",
+    "birthdate": "2001-03-26",
+    "club": "Nice",
+    "league": "Ligue 1",
+    "position": "Midfielder",
+    "nationality": "France",
+    "past_clubs": [
+      "Monaco"
+    ]
   }
 ]
-
