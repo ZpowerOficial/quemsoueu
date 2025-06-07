@@ -1,5 +1,23 @@
 // main.js - Jogo de Adivinhação de Jogadores de Futebol
 
+// Utilitário de armazenamento seguro
+const Storage = {
+  get(key) {
+    try {
+      return typeof localStorage !== 'undefined' ? localStorage.getItem(key) : null;
+    } catch (e) {
+      return null;
+    }
+  },
+  set(key, value) {
+    try {
+      if (typeof localStorage !== 'undefined') localStorage.setItem(key, value);
+    } catch (e) {
+      // Ignore se localStorage não estiver disponível
+    }
+  }
+};
+
 // Estado centralizado do jogo
 const gameState = {
   mode: 'normal',
@@ -13,8 +31,8 @@ const gameState = {
   wins: 0,
   lives: 10,
   gameOver: false,
-  record: Number(localStorage.getItem('recorde_futebol')) || 0,
-  ranking: JSON.parse(localStorage.getItem('ranking_futebol') || '[]'),
+  record: Number(Storage.get('recorde_futebol')) || 0,
+  ranking: JSON.parse(Storage.get('ranking_futebol') || '[]'),
   attempts: [],
   timerInterval: null,
   timeLeft: 20,
@@ -59,6 +77,7 @@ const Utils = {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 };
+
 
 // Gerenciador de UI
 const UI = {
@@ -113,22 +132,22 @@ const UI = {
     }
     
     // Iniciar com o modo salvo ou normal
-    gameState.mode = localStorage.getItem('qs_game_mode') || 'normal';
+    gameState.mode = Storage.get('qs_game_mode') || 'normal';
     document.body.classList.toggle('difficult-mode', gameState.mode === 'dificil');
     document.body.classList.toggle('normal-mode', gameState.mode !== 'dificil');
     if (this.elements.modeToggle) this.elements.modeToggle.checked = gameState.mode === 'dificil';
     // Iniciar com o modo normal
     document.body.classList.add('normal-mode');
-    const storedTheme = localStorage.getItem('qs_dark_mode');
+    const storedTheme = Storage.get('qs_dark_mode');
     gameState.darkMode = storedTheme === 'true';
     document.body.classList.toggle('dark-theme', gameState.darkMode);
     if (this.elements.themeToggle) this.elements.themeToggle.checked = gameState.darkMode;
 
-    gameState.legendMode = localStorage.getItem('qs_legend_mode') === 'true';
+    gameState.legendMode = Storage.get('qs_legend_mode') === 'true';
     document.body.classList.toggle('legend-mode', gameState.legendMode);
     if (this.elements.legendToggle) this.elements.legendToggle.checked = gameState.legendMode;
 
-    gameState.quickMode = localStorage.getItem('qs_quick_mode') === 'true';
+    gameState.quickMode = Storage.get('qs_quick_mode') === 'true';
     if (this.elements.quickToggle) this.elements.quickToggle.checked = gameState.quickMode;
     this.updateRanking();
   },
@@ -185,7 +204,7 @@ const UI = {
       <h3>Jogador correto: ${player.name}</h3>
       <p>Idade: ${age} anos</p>
       <p>Clube: ${player.club}</p>
-      <p>Liga: ${player.league || 'N/A'}</p>
+      <p>Liga: ${player.league || 'Sem informação'}</p>
       <p>Posição: ${player.position}</p>
       <p>Nacionalidade: ${player.nationality}</p>
     `;
@@ -251,7 +270,7 @@ const GameManager = {
     if (UI.elements.modeToggle) {
       UI.elements.modeToggle.addEventListener('change', (e) => {
         gameState.mode = e.target.checked ? 'dificil' : 'normal';
-        localStorage.setItem('qs_game_mode', gameState.mode);
+        Storage.set('qs_game_mode', gameState.mode);
 
         document.body.classList.toggle('difficult-mode', e.target.checked);
         document.body.classList.toggle('normal-mode', !e.target.checked);
@@ -264,7 +283,7 @@ const GameManager = {
     if (UI.elements.legendToggle) {
       UI.elements.legendToggle.addEventListener('change', (e) => {
         gameState.legendMode = e.target.checked;
-        localStorage.setItem('qs_legend_mode', gameState.legendMode);
+        Storage.set('qs_legend_mode', gameState.legendMode);
         document.body.classList.toggle('legend-mode', gameState.legendMode);
         this.restartGame();
       });
@@ -273,7 +292,7 @@ const GameManager = {
     if (UI.elements.quickToggle) {
       UI.elements.quickToggle.addEventListener('change', (e) => {
         gameState.quickMode = e.target.checked;
-        localStorage.setItem('qs_quick_mode', gameState.quickMode);
+        Storage.set('qs_quick_mode', gameState.quickMode);
         this.restartGame();
       });
     }
@@ -281,7 +300,7 @@ const GameManager = {
     if (UI.elements.themeToggle) {
       UI.elements.themeToggle.addEventListener('change', (e) => {
         gameState.darkMode = e.target.checked;
-        localStorage.setItem('qs_dark_mode', gameState.darkMode);
+        Storage.set('qs_dark_mode', gameState.darkMode);
         document.body.classList.toggle('dark-theme', gameState.darkMode);
       });
     }
@@ -556,11 +575,12 @@ const GameManager = {
 
       if (gameState.legendMode) {
         players = players.filter(player =>
-          ['Retired', 'Deceased'].includes(player.club)
+          ['Aposentado', 'Falecido', 'Retired', 'Deceased'].includes(player.club)
         );
       } else if (gameState.mode === 'normal') {
         players = players.filter(player =>
-          !['Retired', 'Deceased', 'Free Agent', 'Sem liga'].includes(player.club)
+          !['Aposentado', 'Falecido', 'Retired', 'Deceased',
+            'Sem clube', 'Free Agent', 'Sem liga'].includes(player.club)
         );
       }
       
@@ -641,7 +661,7 @@ const GameManager = {
 
     if (gameState.wins > gameState.record) {
       gameState.record = gameState.wins;
-      localStorage.setItem('recorde_futebol', gameState.record);
+      Storage.set('recorde_futebol', gameState.record);
       UI.showMessage(`Fim de jogo! Novo recorde: ${gameState.record} acertos!`, true);
     } else {
       UI.showMessage(`Fim de jogo! Sua pontuação: ${gameState.wins}. Recorde: ${gameState.record}`, false);
@@ -655,11 +675,12 @@ const GameManager = {
     });
     gameState.ranking.sort((a, b) => b.score - a.score);
     gameState.ranking = gameState.ranking.slice(0, 5);
-    localStorage.setItem('ranking_futebol', JSON.stringify(gameState.ranking));
+    Storage.set('ranking_futebol', JSON.stringify(gameState.ranking));
     UI.updateRanking();
   },
   
   restartGame() {
+    this.stopTimer();
     gameState.resetGame();
     UI.resetUI();
     this.startGame();
