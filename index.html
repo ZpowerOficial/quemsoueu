@@ -2,19 +2,62 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Jogo de adivinhação de jogadores de futebol inspirado no Wordle. Teste seus conhecimentos sobre jogadores, clubes, ligas e nacionalidades!">
+    <meta name="theme-color" content="#1976d2">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="QSE Futebol">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Quem Sou Eu? - Futebol">
+    <meta property="og:description" content="Jogo de adivinhação de jogadores de futebol inspirado no Wordle">
+    <meta property="og:image" content="/icons/icon-512x512.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Quem Sou Eu? - Futebol">
+    <meta property="twitter:description" content="Jogo de adivinhação de jogadores de futebol inspirado no Wordle">
+    <meta property="twitter:image" content="/icons/icon-512x512.png">
+    
     <title>Quem sou eu? Futebol</title>
+    
+    <!-- Manifest for PWA -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png">
+    
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Confetti Canvas -->
+    <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+    
     <div class="container">
-        <h1>Quem sou eu? Jogadores de Futebol</h1>
+        <h1>⚽ Quem sou eu? Jogadores de Futebol</h1>
+        
         <div id="instructions">
             <p>Tente adivinhar o jogador sorteado! Digite o nome, escolha e veja o feedback de cada atributo.<br>
             <b>Dica:</b> Você pode usar partes do nome, nacionalidade, clube, etc.</p>
-            <button id="tutorial-btn" class="info-btn">Como Jogar</button>
+            <div class="btn-group">
+                <button id="tutorial-btn" class="info-btn">❓ Como Jogar</button>
+                <button id="achievements-btn" class="info-btn">🏆 Conquistas</button>
+                <button id="stats-btn" class="info-btn">📊 Estatísticas</button>
+            </div>
         </div>
+        
+        <!-- Options Bar -->
         <div id="options-bar" class="options-bar">
             <div class="mode-toggle-container">
                 <span class="mode-label">Modo Normal</span>
@@ -48,19 +91,35 @@
                 </label>
                 <span class="mode-label">Escuro</span>
             </div>
+            <div class="mode-toggle-container">
+                <span class="mode-label">🔇</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="audio-toggle" checked>
+                    <span class="slider round"></span>
+                </label>
+                <span class="mode-label">🔊</span>
+            </div>
+            <div class="mode-toggle-container">
+                <span class="mode-label">📱</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="vibration-toggle" checked>
+                    <span class="slider round"></span>
+                </label>
+                <span class="mode-label">📳</span>
+            </div>
         </div>
 
-        <!-- Modal Tutorial -->
+        <!-- Tutorial Modal -->
         <div id="tutorial-modal" class="modal">
             <div class="modal-content">
                 <span class="close">&times;</span>
                 <h2>Como Jogar "Quem Sou Eu?"</h2>
                 <div class="tutorial-section">
-                    <h3>Objetivo</h3>
+                    <h3>🎯 Objetivo</h3>
                     <p>Adivinhar o jogador de futebol escondido com o menor número de tentativas.</p>
                 </div>
                 <div class="tutorial-section">
-                    <h3>Significado das cores</h3>
+                    <h3>🎨 Significado das cores</h3>
                     <ul>
                         <li><span class="color-sample green"></span> <b>Verde:</b> Atributo idêntico ao do jogador escondido.</li>
                         <li><span class="color-sample orange"></span> <b>Laranja:</b> Parcialmente correto (idade até 2 anos ou histórico).</li>
@@ -68,7 +127,7 @@
                     </ul>
                 </div>
                 <div class="tutorial-section">
-                    <h3>Como funciona</h3>
+                    <h3>🎮 Como funciona</h3>
                     <ul>
                         <li>Digite o nome do jogador que você quer testar</li>
                         <li>Selecione um jogador da lista de sugestões</li>
@@ -78,36 +137,81 @@
                     </ul>
                 </div>
                 <div class="tutorial-section">
-                    <h3>Modos de jogo</h3>
+                    <h3>⚙️ Modos de jogo</h3>
                     <ul>
                         <li><b>Normal:</b> sem limite de tempo, apenas jogadores em atividade.</li>
-                        <li><b>Difícil:</b> 20&nbsp;segundos por rodada.</li>
+                        <li><b>Difícil:</b> 20 segundos por rodada.</li>
                         <li><b>Lendas:</b> sorteia apenas jogadores históricos ou aposentados.</li>
                         <li><b>Rápido:</b> tempo diminui a cada rodada.</li>
                         <li>Você pode alternar entre tema claro ou escuro a qualquer momento.</li>
                     </ul>
                 </div>
+                <div class="tutorial-section">
+                    <h3>🏆 Conquistas</h3>
+                    <p>Complete desafios para desbloquear conquistas especiais! Veja todas na aba de conquistas.</p>
+                </div>
             </div>
         </div>
 
+        <!-- Achievements Modal -->
+        <div id="achievements-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>🏆 Conquistas</h2>
+                <div id="achievements-list" class="achievements-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Modal -->
+        <div id="stats-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>📊 Suas Estatísticas</h2>
+                <div id="stats-content">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Status -->
         <div id="game-status">
             <span id="round-info"></span>
             <span id="loading" style="display:none;">Carregando...</span>
+            <span id="timer"></span>
         </div>
+        
+        <!-- Skeleton Loader -->
+        <div id="skeleton-loader" class="skeleton" style="display:none;">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+        </div>
+        
+        <!-- Hint -->
         <div id="hint-container">
-            <button id="hint-btn" class="info-btn">Dica</button>
+            <button id="hint-btn" class="info-btn">💡 Dica</button>
             <div id="hint" style="margin-top:10px;"></div>
         </div>
-        <input type="text" id="player-input" placeholder="Digite o nome do jogador...">
+        
+        <!-- Input -->
+        <input type="text" id="player-input" placeholder="Digite o nome do jogador..." autocomplete="off" spellcheck="false">
         <ul id="suggestions"></ul>
         <button id="choose-btn" disabled>Escolher</button>
+        
+        <!-- Feedback -->
         <div id="feedback"></div>
         <div id="player-details" style="display:none;"></div>
+        
+        <!-- Ranking -->
         <div id="ranking-container">
-            <h3>Seus Melhores Recordes</h3>
+            <h3>🏅 Seus Melhores Recordes</h3>
             <ol id="ranking-list"></ol>
         </div>
     </div>
-    <script src="main.js"></script>
+    
+    <!-- Scripts -->
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>

@@ -1,60 +1,219 @@
-# Quem Sou Eu - Futebol
+# ⚽ Quem Sou Eu? - Futebol
 
-![Quem Sou Eu - Futebol](https://img.shields.io/badge/Jogo-Adivinhação-brightgreen)
-![Tecnologias](https://img.shields.io/badge/Tecnologias-HTML%20CSS%20JavaScript-blue)
+Jogo de adivinhação de jogadores de futebol inspirado no Wordle/Termo. Teste seus conhecimentos sobre jogadores, clubes, ligas e nacionalidades!
 
-## 📝 Descrição
+## 🎮 Características
 
-**Quem Sou Eu - Futebol** é um jogo de adivinhação de jogadores de futebol inspirado no estilo do "Termo"/"Wordle". O objetivo é adivinhar o jogador misterioso com base em dicas sobre suas características (idade, clube, liga, posição e nacionalidade).
+### Modos de Jogo
+- **Normal**: Sem limite de tempo, jogadores em atividade
+- **Difícil**: 20 segundos por rodada
+- **Lendas**: Apenas jogadores históricos/aposentados
+- **Rápido**: Tempo diminui a cada rodada
 
-## 🎮 Como Jogar
+### Funcionalidades
+- 🎯 Sistema de feedback colorido (verde/laranja/vermelho)
+- 💡 Sistema de dicas inteligentes
+- 📊 Estatísticas detalhadas
+- 🏆 Sistema de conquistas
+- 🔊 Efeitos sonoros (Web Audio API)
+- 📳 Feedback tátil (Vibration API)
+- 🌓 Tema claro/escuro
+- 📱 PWA - Instalável como aplicativo
+- 🔄 Funciona offline
+- 📈 Ranking pessoal top-5
+- 📜 Histórico de tentativas
 
-1. Digite o nome de qualquer jogador de futebol na barra de pesquisa (pelo menos 3 letras)
-2. Escolha um jogador das sugestões que aparecerem
-3. O jogo fornecerá feedback usando cores:
-   - 🟢 **Verde**: A característica está correta
-   - 🟠 **Laranja**: A característica está próxima (no caso da idade)
-   - 🔴 **Vermelho**: A característica está incorreta
-4. Continue adivinhando até descobrir o jogador correto
-5. Ao acertar, você ganha 3 vidas extras e passa para o próximo jogador
+## 🏗️ Arquitetura
 
-## ✨ Características
+### Estrutura de Arquivos
+```
+/
+├── index.html              # Página principal
+├── style.css              # Estilos globais
+├── manifest.json          # Manifesto PWA
+├── service-worker.js      # Service Worker para offline
+├── players.json           # Base de dados de jogadores
+├── icons/                 # Ícones do PWA
+└── js/                    # Módulos JavaScript
+    ├── main.js           # Entry point
+    ├── config.js         # Configurações e constantes
+    ├── storage.js        # Wrapper seguro do localStorage
+    ├── utils.js          # Funções utilitárias
+    ├── audio.js          # Gerenciador de áudio
+    ├── vibration.js      # Gerenciador de vibração
+    ├── achievements.js   # Sistema de conquistas
+    ├── statistics.js     # Estatísticas do jogador
+    ├── ui.js             # Gerenciador de UI
+    └── gameManager.js    # Lógica principal do jogo
+```
 
-- **Banco de Dados de Jogadores**: Mais de 500 jogadores de futebol, incluindo atuais e lendas
-- **Sistema de Dicas Coloridas**: Feedback visual para orientar suas próximas tentativas
-- **Histórico de Tentativas**: Acompanhe todas as suas tentativas anteriores
-- **Tutorial Integrado**: Botão "Como Jogar" com instruções detalhadas
-- **Pesquisa Inteligente**: Encontre jogadores pelo nome, clube ou nacionalidade
-- **Sem Acentuação**: A pesquisa ignora acentos e caracteres especiais
-- **Sistema de Vidas**: Receba vidas extras ao acertar jogadores
-- **Botão de Reinício**: Comece um novo jogo a qualquer momento
-- **Modos de Jogo**: Normal, Difícil (com tempo) e Lendas, todos compatíveis com tema escuro
-- **Tema Claro/Escuro**: Alternância de tema para jogar confortavelmente
-- **Modos de Jogo**: Normal, Difícil (com tempo), Rápido e Lendas, todos compatíveis com tema escuro
+### Tecnologias
+- **Frontend**: HTML5, CSS3, JavaScript ES6+ (módulos)
+- **Storage**: localStorage
+- **PWA**: Service Worker, Web App Manifest
+- **Audio**: Web Audio API
+- **Vibração**: Vibration API
 
-## 🛠️ Tecnologias Utilizadas
+## 🎨 Temas e Personalização
 
-- **HTML5**: Estrutura da página
-- **CSS3**: Estilização e animações
-- **JavaScript**: Lógica do jogo e interação com o usuário
-- **JSON**: Armazenamento dos dados dos jogadores
+O jogo oferece múltiplas opções de personalização:
+- Tema claro/escuro
+- Áudio ativado/desativado
+- Vibração ativada/desativada
+- Múltiplos modos de jogo
 
-## 🔄 Atualizações Recentes
+## 🏆 Conquistas
 
-- Adicionados goleiros de classe mundial (ter Stegen, Oblak, Courtois, Donnarumma)
-- Implementado sistema de pesquisa que ignora acentuação
-- Adicionado tutorial com explicação sobre as cores
-- Sistema de vidas extras ao acertar um jogador
-- Botão de reinício após o fim do jogo
+- 🎯 **Primeira Vitória**: Acerte seu primeiro jogador
+- 🔥 **Sequência de 5**: Acerte 5 jogadores seguidos
+- ⚡ **Sequência de 10**: Acerte 10 jogadores seguidos
+- 👑 **Mestre das Lendas**: Vença 5 jogos no modo Lendas
+- 💨 **Demônio da Velocidade**: Vença no modo Rápido com 10+ acertos
+- ⭐ **Jogo Perfeito**: Acerte um jogador na primeira tentativa
+- 💪 **Persistente**: Jogue 50 partidas
+- 📚 **Estudioso**: Use o botão de dica 20 vezes
 
-## 🤝 Contribuições
+## 📊 Estatísticas Rastreadas
 
-Sugestões e contribuições são bem-vindas! Sinta-se à vontade para abrir uma issue ou enviar um pull request com melhorias.
+- Total de jogos
+- Vitórias/Derrotas
+- Taxa de acerto
+- Média de tentativas
+- Melhor sequência
+- Acertos perfeitos
+- Dicas usadas
+- Recordes por modo
+- Tempo total de jogo
 
-## 📱 Versão Mobile
+## 🚀 Como Executar
 
-O jogo é responsivo e funciona perfeitamente em dispositivos móveis.
+### Desenvolvimento Local
+```bash
+# Servidor HTTP simples com Python
+python3 -m http.server 8000
+
+# Ou com Node.js
+npx http-server -p 8000
+
+# Ou com PHP
+php -S localhost:8000
+```
+
+Acesse: `http://localhost:8000`
+
+### PWA/Produção
+Para funcionar como PWA, o site precisa:
+1. Ser servido via HTTPS (ou localhost)
+2. Ter um Service Worker registrado
+3. Ter um manifesto válido
+
+## 🔧 Melhorias Implementadas
+
+### Performance
+- ✅ Debounce na busca (300ms)
+- ✅ Cache LRU para resultados de busca
+- ✅ DocumentFragment para renderização eficiente
+- ✅ Normalização de texto otimizada
+
+### Bug Fixes
+- ✅ Race condition no timer corrigida
+- ✅ Tratamento adequado de birthdate null/undefined
+- ✅ Normalização consistente de texto em todas comparações
+- ✅ Event listeners não duplicam
+
+### UX/UI
+- ✅ Animações CSS suaves
+- ✅ Skeleton loaders
+- ✅ Toast notifications
+- ✅ Confetti para novos recordes
+- ✅ Timer com urgência visual
+- ✅ Loading states
+- ✅ Melhor responsividade mobile
+
+### Acessibilidade
+- ✅ Labels ARIA apropriados
+- ✅ Navegação por teclado
+- ✅ Suporte a prefers-reduced-motion
+- ✅ Modo alto contraste
+- ✅ Focus visible
+
+### PWA
+- ✅ Manifest.json completo
+- ✅ Service Worker para cache offline
+- ✅ Meta tags SEO
+- ✅ Open Graph tags
+- ✅ Ícones para todas plataformas
+
+## 📝 Notas de Desenvolvimento
+
+### Configuração
+Todas as constantes estão centralizadas em `js/config.js`:
+- Vidas iniciais
+- Tempo do timer
+- Delays de debounce
+- Chaves do localStorage
+- Definições de conquistas
+- Frequências de áudio
+
+### Storage
+O módulo `storage.js` fornece wrappers seguros para localStorage com:
+- Tratamento de erros
+- Suporte a JSON
+- Verificação de disponibilidade
+
+### Módulos
+Cada módulo é independente e exporta um singleton:
+- `audioManager` - Gerencia sons
+- `vibrationManager` - Gerencia vibração
+- `achievementsManager` - Gerencia conquistas
+- `statisticsManager` - Gerencia estatísticas
+- `uiManager` - Gerencia UI
+- `gameManager` - Orquestra tudo
+
+## 🐛 Debugging
+
+Para debug, abra o console do navegador:
+```javascript
+// Ver estado do jogo
+console.log(gameManager.state);
+
+// Ver estatísticas
+console.log(statisticsManager.getStats());
+
+// Ver conquistas
+console.log(achievementsManager.getAll());
+
+// Limpar dados
+localStorage.clear();
+```
+
+## 📱 PWA Installation
+
+O jogo pode ser instalado como aplicativo:
+1. Abra no Chrome/Edge/Safari
+2. Clique no ícone de instalação na barra de endereço
+3. Ou menu → "Instalar aplicativo"
+
+## 🔮 Futuras Melhorias Possíveis
+
+- [ ] Multiplayer online
+- [ ] Compartilhamento de resultados
+- [ ] Desafio diário
+- [ ] Mais categorias (clubes, ligas, etc.)
+- [ ] Leaderboard global
+- [ ] Mais conquistas
+- [ ] Customização de avatares
+- [ ] Sistema de níveis
+- [ ] Power-ups
+
+## 📄 Licença
+
+Este é um projeto educacional. Os dados dos jogadores são de domínio público.
+
+## 🤝 Contribuindo
+
+Sugestões e melhorias são bem-vindas! Abra uma issue ou pull request.
 
 ---
 
-Desenvolvido com ❤️ por ZpowerOficial
+Desenvolvido com ⚽ e ❤️
