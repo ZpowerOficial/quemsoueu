@@ -35,7 +35,8 @@
     "league": "Campeonato Brasileiro",
     "position": "Atacante",
     "nationality": "Brazil",
-    "past_clubs": ["Al Hilal", 
+    "past_clubs": [
+      "Al Hilal",
       "Santos",
       "Barcelona",
       "Paris Saint-Germain"
@@ -6909,8 +6910,8 @@
     "id": 500,
     "name": "David De Gea",
     "birthdate": "1990-11-07",
-    "club": "Fiorentina",
-    "league": "Serie A",
+    "club": "Free Agent",
+    "league": "Sem liga",
     "position": "Goleiro",
     "nationality": "Spain",
     "past_clubs": [
@@ -8632,18 +8633,6 @@
     ]
   },
   {
-    "id": 665,
-    "name": "Jamal Musiala",
-    "birthdate": "2003-02-26",
-    "club": "Bayern Munich",
-    "league": "Bundesliga",
-    "position": "Meio-campista",
-    "nationality": "Germany",
-    "past_clubs": [
-      "Chelsea"
-    ]
-  },
-  {
     "id": 666,
     "name": "Randal Kolo Muani",
     "birthdate": "1998-12-05",
@@ -8842,6 +8831,212 @@
     "nationality": "France",
     "past_clubs": [
       "Monaco"
+    ]
+  },
+  {
+    "name": "Andreas Christensen",
+    "birthdate": "1996-04-10",
+    "club": "Barcelona",
+    "league": "La Liga",
+    "position": "Defensor",
+    "nationality": "Denmark",
+    "past_clubs": [
+      "Chelsea",
+      "Borussia Mönchengladbach"
+    ],
+    "id": 681
+  },
+  {
+    "name": "Iñigo Martínez",
+    "birthdate": "1991-05-17",
+    "club": "Barcelona",
+    "league": "La Liga",
+    "position": "Defensor",
+    "nationality": "Spain",
+    "past_clubs": [
+      "Real Sociedad",
+      "Athletic Bilbao"
+    ],
+    "id": 683
+  },
+  {
+    "name": "Alejandro Balde",
+    "birthdate": "2003-10-18",
+    "club": "Barcelona",
+    "league": "La Liga",
+    "position": "Defensor",
+    "nationality": "Spain",
+    "past_clubs": [],
+    "id": 686
+  },
+  {
+    "name": "İlkay Gündoğan",
+    "birthdate": "1990-10-24",
+    "club": "Barcelona",
+    "league": "La Liga",
+    "position": "Meio-campista",
+    "nationality": "Germany",
+    "past_clubs": [
+      "Bochum",
+      "Borussia Dortmund",
+      "Manchester City"
+    ],
+    "id": 690
+  },
+  {
+    "name": "Pau Cubarsí",
+    "birthdate": "2007-01-22",
+    "club": "Barcelona",
+    "league": "La Liga",
+    "position": "Defensor",
+    "nationality": "Spain",
+    "past_clubs": [],
+    "id": 695
+  },
+  {
+    "name": "Fermín López",
+    "birthdate": "2003-05-11",
+    "club": "Barcelona",
+    "league": "La Liga",
+    "position": "Meio-campista",
+    "nationality": "Spain",
+    "past_clubs": [
+      "Linares Deportivo"
+    ],
+    "id": 701
+  },
+  {
+    "name": "Aurelien Tchouaméni",
+    "birthdate": "2000-01-27",
+    "club": "Real Madrid",
+    "league": "La Liga",
+    "position": "Meio-campista",
+    "nationality": "France",
+    "past_clubs": [
+      "Bordeaux",
+      "Monaco"
+    ],
+    "id": 708
+  },
+  {
+    "name": "John Stones",
+    "birthdate": "1994-05-28",
+    "club": "Manchester City",
+    "league": "Premier League",
+    "position": "Defensor",
+    "nationality": "England",
+    "past_clubs": [
+      "Barnsley",
+      "Everton"
+    ],
+    "id": 716
+  },
+  {
+    "name": "Kyle Walker",
+    "birthdate": "1990-05-28",
+    "club": "Manchester City",
+    "league": "Premier League",
+    "position": "Defensor",
+    "nationality": "England",
+    "past_clubs": [
+      "Sheffield United",
+      "Tottenham",
+      "Aston Villa"
+    ],
+    "id": 725
+  },
+  {
+    "name": "Julian Álvarez",
+    "birthdate": "2000-01-31",
+    "club": "Manchester City",
+    "league": "Premier League",
+    "position": "Atacante",
+    "nationality": "Argentina",
+    "past_clubs": [
+      "River Plate",
+      "Atlético Madrid"
+    ],
+    "id": 735
+  },
+  {
+    "name": "Pedro Porro",
+    "birthdate": "1999-09-13",
+    "club": "Tottenham",
+    "league": "Premier League",
+    "position": "Defensor",
+    "nationality": "Spain",
+    "past_clubs": [
+      "Girona",
+      "Manchester City",
+      "Sporting CP"
+    ],
+    "id": 746
+  },
+  {
+    "name": "Diogo Dalot",
+    "birthdate": "1999-03-18",
+    "club": "Manchester United",
+    "league": "Premier League",
+    "position": "Defensor",
+    "nationality": "Portugal",
+    "past_clubs": [
+      "Porto",
+      "AC Milan"
+    ],
+    "id": 758
+  },
+  {
+    "name": "Diego Costa",
+    "birthdate": "1988-10-07",
+    "club": "Aposentado",
+    "league": "Sem liga",
+    "position": "Atacante",
+    "nationality": "Spain",
+    "past_clubs": [
+      "Atlético Madrid",
+      "Chelsea",
+      "Wolverhampton"
+    ],
+    "id": 771
+  },
+  {
+    "name": "David Silva",
+    "birthdate": "1986-01-08",
+    "club": "Aposentado",
+    "league": "Sem liga",
+    "position": "Meio-campista",
+    "nationality": "Spain",
+    "past_clubs": [
+      "Valencia",
+      "Celta de Vigo",
+      "Manchester City",
+      "Real Sociedad"
+    ],
+    "id": 785
+  },
+  {
+    "name": "Paolo Maldini",
+    "birthdate": "1968-06-26",
+    "club": "Aposentado",
+    "league": "Sem liga",
+    "position": "Defensor",
+    "nationality": "Italy",
+    "past_clubs": [
+      "AC Milan"
+    ],
+    "id": 800
+  },
+  {
+    "id": 801,
+    "name": "Heung-Min Son",
+    "birthdate": "1992-07-08",
+    "club": "Tottenham",
+    "league": "Premier League",
+    "position": "Ponta",
+    "nationality": "South Korea",
+    "past_clubs": [
+      "Hamburg",
+      "Bayer Leverkusen"
     ]
   }
 ]

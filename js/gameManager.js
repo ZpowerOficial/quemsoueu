@@ -166,15 +166,25 @@ class GameManager {
         this.showStatistics();
       });
     }
+    
+    // Ranking button
+    if (uiManager.elements.rankingBtn) {
+      uiManager.elements.rankingBtn.addEventListener('click', () => {
+        audioManager.playClick();
+        uiManager.updateRanking(this.state.ranking);
+        uiManager.showModal('ranking-modal');
+      });
+    }
 
-    // Search input with debounce
+    // Search input with debounce and keyboard navigation
     uiManager.elements.input.addEventListener('input', () => {
       const query = uiManager.elements.input.value.trim();
-      uiManager.clearSuggestions();
+      this.currentSuggestions = [];
       this.state.selectedPlayer = null;
       uiManager.elements.chooseBtn.disabled = true;
 
       if (query.length < CONFIG.MIN_SEARCH_LENGTH) {
+        uiManager.clearSuggestions();
         this.searchCache.clear();
         return;
       }
@@ -182,7 +192,31 @@ class GameManager {
       this.debouncedSearch(query);
     });
 
-    // Choose button
+    // Enter key support for auto-selection
+    uiManager.elements.input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        
+        if (this.state.gameOver && uiManager.elements.chooseBtn.innerText === 'Reiniciar') {
+          this.restartGame();
+          return;
+        }
+        
+        // If no player selected, try auto-select first suggestion
+        if (!this.state.selectedPlayer) {
+          if (this.autoSelectFirstSuggestion()) {
+            // Small delay to show selection before processing
+            setTimeout(() => this.handleGuess(), 100);
+          } else {
+            uiManager.showToast('Digite um nome de jogador válido', 'error');
+          }
+        } else {
+          this.handleGuess();
+        }
+      }
+    });
+
+    // Choose button with auto-select support
     uiManager.elements.chooseBtn.addEventListener('click', async () => {
       audioManager.playClick();
       
@@ -190,7 +224,20 @@ class GameManager {
         return this.restartGame();
       }
 
-      if (this.state.gameOver || !this.state.selectedPlayer || !this.state.correctPlayer) {
+      if (this.state.gameOver || !this.state.correctPlayer) {
+        return;
+      }
+
+      // If no player selected, try auto-select first suggestion
+      if (!this.state.selectedPlayer) {
+        if (this.autoSelectFirstSuggestion()) {
+          // Small delay to show selection before processing
+          setTimeout(async () => {
+            await this.handleGuess();
+          }, 100);
+        } else {
+          uiManager.showToast('Digite um nome de jogador válido', 'error');
+        }
         return;
       }
 
@@ -209,48 +256,105 @@ class GameManager {
   }
 
   /**
-   * Perform search with caching
+   * Calculate fuzzy match score
    * @param {string} query - Search query
+   * @param {string} target - Target string
+   * @returns {number} Score (higher is better)
    */
-  performSearch(query) {
-    const normalizedQuery = normalizeText(query);
+    calculateFuzzyScore(query, target) {
+      const normalizedQuery = normalizeText(query);
+      const normalizedTarget = normalizeText(target);
 
-    // Check cache first
-    const cached = this.searchCache.get(normalizedQuery);
-    if (cached) {
-      this.displaySuggestions(cached);
-      return;
+      // Exact match gets highest score
+      if (normalizedTarget === normalizedQuery) return 1000;
+
+      // Starts with query gets high score
+      if (normalizedTarget.startsWith(normalizedQuery)) return 900;
+
+      // Contains query gets good score
+      if (normalizedTarget.includes(normalizedQuery)) return 800;
+
+      // Fuzzy match - check if all characters appear in order
+      let queryIndex = 0;
+      let targetIndex = 0;
+      let gaps = 0;
+
+      while (queryIndex < normalizedQuery.length && targetIndex < normalizedTarget.length) {
+        if (normalizedQuery[queryIndex] === normalizedTarget[targetIndex]) {
+          queryIndex++;
+        } else {
+          gaps++;
+        }
+        targetIndex++;
+      }
+
+      if (queryIndex === normalizedQuery.length) {
+        // All characters found in order
+        return Math.max(100, 500 - gaps * 10);
+      }
+
+      return 0;
     }
 
-    // Perform search
-    const filteredPlayers = this.state.players
-      .filter(player =>
-        normalizeText(player.name).includes(normalizedQuery) ||
-        normalizeText(player.club).includes(normalizedQuery) ||
-        normalizeText(player.nationality).includes(normalizedQuery)
-      )
-      .slice(0, CONFIG.MAX_SUGGESTIONS);
+    /**
+     * Perform search with caching and fuzzy matching
+     * @param {string} query - Search query
+     */
+    performSearch(query) {
+      const normalizedQuery = normalizeText(query);
 
-    // Cache results
-    this.searchCache.set(normalizedQuery, filteredPlayers);
+      // Check cache first
+      const cached = this.searchCache.get(normalizedQuery);
+      if (cached) {
+        this.displaySuggestions(cached);
+        return;
+      }
 
-    this.displaySuggestions(filteredPlayers);
-  }
+      // Perform search with scoring
+      const scoredPlayers = this.state.players
+        .map(player => {
+          const nameScore = this.calculateFuzzyScore(query, player.name);
+          const clubScore = this.calculateFuzzyScore(query, player.club) * 0.5;
+          const nationalityScore = this.calculateFuzzyScore(query, player.nationality) * 0.3;
+
+          return {
+            player,
+            score: Math.max(nameScore, clubScore, nationalityScore)
+          };
+        })
+        .filter(item => item.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, CONFIG.MAX_SUGGESTIONS)
+        .map(item => item.player);
+
+      // Cache results
+      this.searchCache.set(normalizedQuery, scoredPlayers);
+
+      this.displaySuggestions(scoredPlayers);
+    }
 
   /**
-   * Display search suggestions
+   * Display search suggestions with auto-selection highlight
    * @param {Array} players - Filtered players
    */
   displaySuggestions(players) {
     uiManager.clearSuggestions();
+    this.currentSuggestions = players;
 
-    players.forEach(player => {
+    players.forEach((player, index) => {
       const li = document.createElement('li');
       li.textContent = `${player.name} (${player.nationality})`;
+      li.dataset.index = index;
+      
+      // Highlight first suggestion as default
+      if (index === 0) {
+        li.classList.add('highlighted');
+      }
+      
       li.onclick = () => {
         audioManager.playClick();
         uiManager.elements.suggestions.querySelectorAll('li').forEach(node =>
-          node.classList.remove('selected')
+          node.classList.remove('selected', 'highlighted')
         );
         li.classList.add('selected');
         this.state.selectedPlayer = player;
@@ -258,6 +362,28 @@ class GameManager {
       };
       uiManager.elements.suggestions.appendChild(li);
     });
+  }
+
+  /**
+   * Auto-select the first suggestion
+   */
+  autoSelectFirstSuggestion() {
+    if (this.currentSuggestions && this.currentSuggestions.length > 0) {
+      const firstPlayer = this.currentSuggestions[0];
+      this.state.selectedPlayer = firstPlayer;
+      uiManager.elements.chooseBtn.disabled = false;
+      
+      // Update UI to show selection
+      uiManager.elements.suggestions.querySelectorAll('li').forEach((node, index) => {
+        node.classList.remove('highlighted');
+        if (index === 0) {
+          node.classList.add('selected');
+        }
+      });
+      
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -710,7 +836,7 @@ class GameManager {
     audioManager.playGameOver();
     
     uiManager.displayCorrectPlayer(this.state.correctPlayer, calcAge);
-    uiManager.elements.chooseBtn.innerText = 'Reiniciar';
+    uiManager.elements.chooseBtn.innerHTML = '<span>Reiniciar</span><small>Enter ↵</small>';
     uiManager.elements.chooseBtn.disabled = false;
     uiManager.elements.input.disabled = true;
 

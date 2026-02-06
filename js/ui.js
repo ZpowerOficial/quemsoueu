@@ -5,12 +5,13 @@
 
 import { CONFIG } from './config.js';
 import { Storage } from './storage.js';
-import { createFragment, formatDate } from './utils.js';
+import { formatDate } from './utils.js';
 
 class UIManager {
   constructor() {
     this.elements = {};
     this.toastTimeout = null;
+    this.attempts = [];
   }
 
   /**
@@ -19,6 +20,7 @@ class UIManager {
   initialize() {
     this.cacheElements();
     this.setupModalHandlers();
+    this.setupMenuHandlers();
     this.loadSettings();
   }
 
@@ -27,57 +29,56 @@ class UIManager {
    */
   cacheElements() {
     this.elements = {
+      // Input & Game
       input: document.getElementById('player-input'),
       suggestions: document.getElementById('suggestions'),
       chooseBtn: document.getElementById('choose-btn'),
       feedback: document.getElementById('feedback'),
       playerDetails: document.getElementById('player-details'),
-      tutorialBtn: document.getElementById('tutorial-btn'),
-      tutorialModal: document.getElementById('tutorial-modal'),
-      achievementsBtn: document.getElementById('achievements-btn'),
-      achievementsModal: document.getElementById('achievements-modal'),
-      statsBtn: document.getElementById('stats-btn'),
-      statsModal: document.getElementById('stats-modal'),
-      closeButtons: document.querySelectorAll('.close'),
-      roundInfo: document.getElementById('round-info'),
+      hintBtn: document.getElementById('hint-btn'),
+      hint: document.getElementById('hint'),
       loading: document.getElementById('loading'),
       skeleton: document.getElementById('skeleton-loader'),
+      historyToggle: document.getElementById('history-toggle'),
+      
+      // Status
+      roundInfo: document.getElementById('round-info'),
+      winsInfo: document.getElementById('wins-info'),
+      livesInfo: document.getElementById('lives-info'),
+      recordInfo: document.getElementById('record-info'),
+      timer: document.getElementById('timer'),
+      
+      // Menu & Toggles
+      menuBtn: document.getElementById('menu-btn'),
+      menuDropdown: document.getElementById('menu-dropdown'),
       modeToggle: document.getElementById('mode-toggle'),
       quickToggle: document.getElementById('quick-toggle'),
       legendToggle: document.getElementById('legend-toggle'),
       themeToggle: document.getElementById('theme-toggle'),
       audioToggle: document.getElementById('audio-toggle'),
-      vibrationToggle: document.getElementById('vibration-toggle'),
-      hintBtn: document.getElementById('hint-btn'),
-      hint: document.getElementById('hint'),
-      rankingContainer: document.getElementById('ranking-container'),
+      
+      // Buttons
+      tutorialBtn: document.getElementById('tutorial-btn'),
+      achievementsBtn: document.getElementById('achievements-btn'),
+      statsBtn: document.getElementById('stats-btn'),
+      rankingBtn: document.getElementById('ranking-btn'),
+      
+      // Modals
+      tutorialModal: document.getElementById('tutorial-modal'),
+      achievementsModal: document.getElementById('achievements-modal'),
+      statsModal: document.getElementById('stats-modal'),
+      rankingModal: document.getElementById('ranking-modal'),
+      historyModal: document.getElementById('history-modal'),
+      closeButtons: document.querySelectorAll('.close'),
+      
+      // Lists
       rankingList: document.getElementById('ranking-list'),
-      timer: document.getElementById('timer'),
-      historyContainer: document.getElementById('historico-tentativas'),
+      historyContent: document.getElementById('history-content'),
+      
+      // Effects
       toast: document.getElementById('toast'),
       confetti: document.getElementById('confetti-canvas')
     };
-
-    // Create timer element if it doesn't exist
-    if (!this.elements.timer) {
-      const timerSpan = document.createElement('span');
-      timerSpan.id = 'timer';
-      timerSpan.style.marginLeft = '20px';
-      document.getElementById('game-status').appendChild(timerSpan);
-      this.elements.timer = timerSpan;
-    }
-
-    // Create history container if it doesn't exist
-    if (!this.elements.historyContainer) {
-      const historyContainer = document.createElement('div');
-      historyContainer.id = 'historico-tentativas';
-      historyContainer.style.display = 'none';
-      document.querySelector('.container').insertBefore(
-        historyContainer,
-        this.elements.feedback
-      );
-      this.elements.historyContainer = historyContainer;
-    }
 
     // Create toast if it doesn't exist
     if (!this.elements.toast) {
@@ -90,6 +91,33 @@ class UIManager {
   }
 
   /**
+   * Setup menu handlers
+   */
+  setupMenuHandlers() {
+    // Menu toggle
+    if (this.elements.menuBtn && this.elements.menuDropdown) {
+      this.elements.menuBtn.addEventListener('click', () => {
+        this.elements.menuDropdown.classList.toggle('active');
+      });
+      
+      // Close menu when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!this.elements.menuBtn.contains(e.target) && 
+            !this.elements.menuDropdown.contains(e.target)) {
+          this.elements.menuDropdown.classList.remove('active');
+        }
+      });
+    }
+    
+    // History toggle
+    if (this.elements.historyToggle) {
+      this.elements.historyToggle.addEventListener('click', () => {
+        this.showModal('history-modal');
+      });
+    }
+  }
+
+  /**
    * Setup modal event handlers
    */
   setupModalHandlers() {
@@ -97,13 +125,17 @@ class UIManager {
     this.elements.closeButtons.forEach(btn => {
       btn.addEventListener('click', (e) => {
         const modal = e.target.closest('.modal');
-        if (modal) modal.style.display = 'none';
+        if (modal) {
+          modal.classList.remove('active');
+          modal.style.display = 'none';
+        }
       });
     });
 
     // Click outside to close
     window.addEventListener('click', (e) => {
       if (e.target.classList.contains('modal')) {
+        e.target.classList.remove('active');
         e.target.style.display = 'none';
       }
     });
@@ -121,10 +153,6 @@ class UIManager {
     // Audio
     const audioEnabled = Storage.get(CONFIG.STORAGE_KEYS.AUDIO_ENABLED) !== 'false';
     if (this.elements.audioToggle) this.elements.audioToggle.checked = audioEnabled;
-
-    // Vibration
-    const vibrationEnabled = Storage.get(CONFIG.STORAGE_KEYS.VIBRATION_ENABLED) !== 'false';
-    if (this.elements.vibrationToggle) this.elements.vibrationToggle.checked = vibrationEnabled;
   }
 
   /**
@@ -133,32 +161,35 @@ class UIManager {
    */
   setLoading(state) {
     if (this.elements.loading) {
-      this.elements.loading.style.display = state ? 'inline' : 'none';
+      this.elements.loading.style.display = state ? 'flex' : 'none';
     }
     
     if (this.elements.skeleton) {
       this.elements.skeleton.style.display = state ? 'block' : 'none';
     }
 
-    this.elements.chooseBtn.disabled = state;
-    this.elements.input.disabled = state;
-
-    if (!state && this.elements.chooseBtn.innerText === 'Reiniciar') {
-      this.elements.chooseBtn.innerText = 'Escolher';
+    if (this.elements.input) {
+      this.elements.input.disabled = state;
     }
   }
 
   /**
-   * Update game status bar
+   * Update game status bar - new compact design
    * @param {Object} gameState - Current game state
    */
   updateGameStatus(gameState) {
-    const modeLabel = gameState.mode === 'dificil' ? 'Difícil' : 'Normal';
-    const legendLabel = gameState.legendMode ? 'Lendas' : 'Atuais';
-    const quickLabel = gameState.quickMode ? 'Rápido' : 'Padrão';
-    
-    this.elements.roundInfo.textContent =
-      `Rodada: ${gameState.round} | Acertos: ${gameState.wins} | Vidas: ${gameState.lives} | Recorde: ${gameState.record} | ${modeLabel} | ${legendLabel} | ${quickLabel}`;
+    if (this.elements.roundInfo) {
+      this.elements.roundInfo.textContent = gameState.round;
+    }
+    if (this.elements.winsInfo) {
+      this.elements.winsInfo.textContent = gameState.wins;
+    }
+    if (this.elements.livesInfo) {
+      this.elements.livesInfo.textContent = gameState.lives;
+    }
+    if (this.elements.recordInfo) {
+      this.elements.recordInfo.textContent = gameState.record;
+    }
   }
 
   /**
@@ -167,13 +198,13 @@ class UIManager {
    */
   updateTimer(time) {
     if (this.elements.timer) {
-      this.elements.timer.textContent = `⏱️ ${time}s`;
+      this.elements.timer.textContent = time > 0 ? `${time}s` : '--';
       
       // Add urgency class when time is low
-      if (time <= 5) {
-        this.elements.timer.classList.add('timer-urgent');
+      if (time <= 5 && time > 0) {
+        this.elements.timer.classList.add('urgent');
       } else {
-        this.elements.timer.classList.remove('timer-urgent');
+        this.elements.timer.classList.remove('urgent');
       }
     }
   }
@@ -182,20 +213,28 @@ class UIManager {
    * Clear suggestions list
    */
   clearSuggestions() {
-    this.elements.suggestions.innerHTML = '';
+    if (this.elements.suggestions) {
+      this.elements.suggestions.innerHTML = '';
+    }
   }
 
   /**
-   * Show feedback results using DocumentFragment for performance
+   * Show feedback results - new clean design
    * @param {Array} results - Feedback results
    */
   showFeedback(results) {
+    if (!this.elements.feedback) return;
+    
     const fragment = document.createDocumentFragment();
     
     results.forEach(r => {
       const div = document.createElement('div');
-      div.className = `feedback ${r.color}`;
-      div.innerHTML = `<b>${r.label}:</b> ${r.value}`;
+      div.className = `feedback-item ${r.color}`;
+      div.innerHTML = `
+        <span class="feedback-label">${r.label}</span>
+        <span class="feedback-value">${r.value}</span>
+        <span class="feedback-correct">${r.correct ? `✓ ${r.correct}` : ''}</span>
+      `;
       fragment.appendChild(div);
     });
 
@@ -209,8 +248,14 @@ class UIManager {
    * @param {boolean} isSuccess - Success state
    */
   showMessage(message, isSuccess) {
+    if (!this.elements.feedback) return;
+    
     const type = isSuccess ? 'green' : 'red';
-    this.elements.feedback.innerHTML = `<div class="feedback ${type}"><b>${message}</b></div>`;
+    this.elements.feedback.innerHTML = `
+      <div class="feedback-item ${type}">
+        <span class="feedback-value" style="grid-column: 1 / -1; text-align: center;">${message}</span>
+      </div>
+    `;
   }
 
   /**
@@ -243,20 +288,23 @@ class UIManager {
   }
 
   /**
-   * Display correct player details
+   * Display correct player details - new clean design
    * @param {Object} player - Player object
+   * @param {Function} calcAge - Age calculation function
    */
   displayCorrectPlayer(player, calcAge) {
+    if (!this.elements.playerDetails) return;
+    
     this.elements.playerDetails.style.display = 'block';
     const age = player.birthdate ? calcAge(player.birthdate) : '-';
     
     this.elements.playerDetails.innerHTML = `
-      <h3>Jogador correto: ${player.name}</h3>
-      <p>Idade: ${age !== null ? age + ' anos' : 'Desconhecida'}</p>
-      <p>Clube: ${player.club}</p>
-      <p>Liga: ${player.league || 'Sem informação'}</p>
-      <p>Posição: ${player.position}</p>
-      <p>Nacionalidade: ${player.nationality}</p>
+      <h3>✓ ${player.name}</h3>
+      <p><strong>Idade:</strong> ${age !== null ? age + ' anos' : 'Desconhecida'}</p>
+      <p><strong>Clube:</strong> ${player.club}</p>
+      <p><strong>Liga:</strong> ${player.league || 'Sem informação'}</p>
+      <p><strong>Posição:</strong> ${player.position}</p>
+      <p><strong>Nacionalidade:</strong> ${player.nationality}</p>
     `;
   }
 
@@ -264,55 +312,72 @@ class UIManager {
    * Hide player details
    */
   hidePlayerDetails() {
-    this.elements.playerDetails.style.display = 'none';
-  }
-
-  /**
-   * Update attempts history using DocumentFragment
-   * @param {Array} attempts - Attempts array
-   */
-  updateAttemptsHistory(attempts) {
-    const container = this.elements.historyContainer;
-
-    if (attempts.length) {
-      container.style.display = 'block';
-      
-      const fragment = document.createDocumentFragment();
-      const title = document.createElement('h3');
-      title.textContent = 'Histórico de Tentativas';
-      fragment.appendChild(title);
-
-      attempts.forEach((t, i) => {
-        const div = document.createElement('div');
-        div.className = 'tentativa';
-        
-        const header = document.createElement('h4');
-        header.textContent = `Tentativa ${attempts.length - i}: ${t.jogador}`;
-        div.appendChild(header);
-
-        const results = document.createElement('div');
-        results.className = 'tentativa-resultados';
-        
-        t.resultados.forEach(r => {
-          const feedback = document.createElement('div');
-          feedback.className = `feedback-small ${r.color}`;
-          feedback.innerHTML = `<b>${r.label}:</b> ${r.value}`;
-          results.appendChild(feedback);
-        });
-
-        div.appendChild(results);
-        fragment.appendChild(div);
-      });
-
-      container.innerHTML = '';
-      container.appendChild(fragment);
-    } else {
-      container.style.display = 'none';
+    if (this.elements.playerDetails) {
+      this.elements.playerDetails.style.display = 'none';
     }
   }
 
   /**
-   * Update ranking display
+   * Update attempts history - now stored for modal display
+   * @param {Array} attempts - Attempts array
+   */
+  updateAttemptsHistory(attempts) {
+    this.attempts = attempts;
+    
+    // Show/hide history toggle button
+    if (this.elements.historyToggle) {
+      this.elements.historyToggle.style.display = attempts.length > 0 ? 'block' : 'none';
+    }
+    
+    // Update history modal content
+    this.updateHistoryModal(attempts);
+  }
+
+  /**
+   * Update history modal content
+   * @param {Array} attempts - Attempts array
+   */
+  updateHistoryModal(attempts) {
+    const container = this.elements.historyContent;
+    if (!container) return;
+
+    if (attempts.length === 0) {
+      container.innerHTML = '<p class="empty-state">Nenhuma tentativa ainda</p>';
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    attempts.forEach((t, i) => {
+      const div = document.createElement('div');
+      div.className = 'history-item';
+      
+      const header = document.createElement('div');
+      header.className = 'history-header';
+      header.innerHTML = `<strong>${attempts.length - i}.</strong> ${t.jogador}`;
+      div.appendChild(header);
+
+      const results = document.createElement('div');
+      results.className = 'history-results';
+      
+      t.resultados.forEach(r => {
+        const badge = document.createElement('span');
+        badge.className = `history-badge ${r.color}`;
+        badge.textContent = r.label;
+        badge.title = `${r.label}: ${r.value}`;
+        results.appendChild(badge);
+      });
+
+      div.appendChild(results);
+      fragment.appendChild(div);
+    });
+
+    container.innerHTML = '';
+    container.appendChild(fragment);
+  }
+
+  /**
+   * Update ranking display - new design
    * @param {Array} ranking - Ranking array
    */
   updateRanking(ranking) {
@@ -320,14 +385,20 @@ class UIManager {
     if (!list) return;
 
     if (ranking.length === 0) {
-      list.innerHTML = '<li>Nenhum recorde ainda</li>';
+      list.innerHTML = '<li class="empty-item">Nenhum recorde ainda. Jogue para registrar sua pontuação!</li>';
       return;
     }
 
     const fragment = document.createDocumentFragment();
     ranking.forEach((r, i) => {
       const li = document.createElement('li');
-      li.textContent = `${i + 1}º - ${r.score} acertos [${r.mode || 'normal'}] (${r.date})`;
+      const modeText = r.mode || 'normal';
+      li.innerHTML = `
+        <div class="ranking-info">
+          <span class="ranking-score">${r.score} acertos</span>
+          <span class="ranking-meta">${modeText} • ${r.date}</span>
+        </div>
+      `;
       fragment.appendChild(li);
     });
 
@@ -341,7 +412,7 @@ class UIManager {
    */
   showAchievementNotification(achievement) {
     this.showToast(
-      `🎉 Conquista desbloqueada: ${achievement.icon} ${achievement.title}`,
+      `🎉 ${achievement.icon} ${achievement.title}`,
       'success',
       4000
     );
@@ -366,7 +437,7 @@ class UIManager {
         <div class="achievement-info">
           <h4>${achievement.title}</h4>
           <p>${achievement.description}</p>
-          ${achievement.unlocked ? `<small>Desbloqueado em ${formatDate(achievement.unlockedAt)}</small>` : ''}
+          ${achievement.unlocked ? `<small>✓ ${formatDate(achievement.unlockedAt)}</small>` : ''}
         </div>
       `;
 
@@ -404,36 +475,28 @@ class UIManager {
           <div class="stat-label">Vitórias</div>
         </div>
         <div class="stat-item">
-          <div class="stat-value">${stats.totalLosses}</div>
-          <div class="stat-label">Derrotas</div>
-        </div>
-        <div class="stat-item">
           <div class="stat-value">${winRate}%</div>
-          <div class="stat-label">Taxa de Acerto</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value">${avgAttempts}</div>
-          <div class="stat-label">Média Tentativas</div>
+          <div class="stat-label">Taxa</div>
         </div>
         <div class="stat-item">
           <div class="stat-value">${stats.bestStreak}</div>
-          <div class="stat-label">Melhor Sequência</div>
+          <div class="stat-label">Sequência</div>
         </div>
         <div class="stat-item">
           <div class="stat-value">${stats.perfectGuesses}</div>
-          <div class="stat-label">Acertos Perfeitos</div>
+          <div class="stat-label">Perfeitos</div>
         </div>
         <div class="stat-item">
           <div class="stat-value">${stats.hintsUsed}</div>
-          <div class="stat-label">Dicas Usadas</div>
+          <div class="stat-label">Dicas</div>
         </div>
       </div>
       <div class="stats-section">
         <h4>Recordes por Modo</h4>
-        <p>Normal: ${stats.normalModeRecord}</p>
-        <p>Difícil: ${stats.difficultModeRecord}</p>
-        <p>Rápido: ${stats.quickModeRecord}</p>
-        <p>Lendas: ${stats.legendWins}</p>
+        <p>Normal: <strong>${stats.normalModeRecord}</strong></p>
+        <p>Difícil: <strong>${stats.difficultModeRecord}</strong></p>
+        <p>Rápido: <strong>${stats.quickModeRecord}</strong></p>
+        <p>Lendas: <strong>${stats.legendWins}</strong></p>
       </div>
     `;
   }
@@ -451,17 +514,19 @@ class UIManager {
     canvas.style.display = 'block';
 
     const particles = [];
-    const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#dfe6e9'];
 
     // Create particles
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 80; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height - canvas.height,
-        r: Math.random() * 6 + 2,
-        d: Math.random() * 10 + 5,
+        r: Math.random() * 4 + 2,
+        d: Math.random() * 8 + 3,
         color: colors[Math.floor(Math.random() * colors.length)],
-        tilt: Math.floor(Math.random() * 10) - 10
+        tilt: Math.floor(Math.random() * 10) - 10,
+        tiltAngle: 0,
+        tiltAngleIncremental: Math.random() * 0.07 + 0.05
       });
     }
 
@@ -470,15 +535,17 @@ class UIManager {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       particles.forEach((p, i) => {
+        p.tiltAngle += p.tiltAngleIncremental;
+        p.y += p.d;
+        p.x += Math.sin(p.tiltAngle) * 2;
+        p.tilt = Math.sin(p.tiltAngle) * 15;
+
         ctx.beginPath();
-        ctx.lineWidth = p.r / 2;
+        ctx.lineWidth = p.r;
         ctx.strokeStyle = p.color;
         ctx.moveTo(p.x + p.tilt + p.r, p.y);
         ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r);
         ctx.stroke();
-
-        p.y += p.d;
-        p.x += Math.sin(p.y / 50) * 2;
 
         if (p.y > canvas.height) {
           particles[i] = {
@@ -487,7 +554,9 @@ class UIManager {
             r: p.r,
             d: p.d,
             color: p.color,
-            tilt: p.tilt
+            tilt: p.tilt,
+            tiltAngle: p.tiltAngle,
+            tiltAngleIncremental: p.tiltAngleIncremental
           };
         }
       });
@@ -508,18 +577,30 @@ class UIManager {
    * Reset UI to initial state
    */
   resetUI() {
-    this.elements.input.disabled = false;
-    this.elements.chooseBtn.innerText = 'Escolher';
-    this.elements.feedback.innerHTML = '';
-    this.hidePlayerDetails();
-    this.elements.historyContainer.style.display = 'none';
-    this.clearSuggestions();
-    this.elements.input.value = '';
-    if (this.elements.hint) this.elements.hint.textContent = '';
-    if (this.elements.timer) {
-      this.elements.timer.textContent = '';
-      this.elements.timer.classList.remove('timer-urgent');
+    if (this.elements.input) {
+      this.elements.input.disabled = false;
+      this.elements.input.value = '';
     }
+    if (this.elements.chooseBtn) {
+      this.elements.chooseBtn.innerHTML = '<span>Enviar</span><small>Enter ↵</small>';
+      this.elements.chooseBtn.disabled = true;
+    }
+    if (this.elements.feedback) {
+      this.elements.feedback.innerHTML = '';
+    }
+    this.hidePlayerDetails();
+    this.clearSuggestions();
+    if (this.elements.hint) {
+      this.elements.hint.textContent = '';
+    }
+    if (this.elements.timer) {
+      this.elements.timer.textContent = '--';
+      this.elements.timer.classList.remove('urgent');
+    }
+    if (this.elements.historyToggle) {
+      this.elements.historyToggle.style.display = 'none';
+    }
+    this.attempts = [];
   }
 
   /**
@@ -528,7 +609,16 @@ class UIManager {
    */
   showModal(modalId) {
     const modal = document.getElementById(modalId);
-    if (modal) modal.style.display = 'block';
+    if (modal) {
+      modal.style.display = 'flex';
+      // Small delay to allow display:flex to apply before adding active class for animation
+      setTimeout(() => modal.classList.add('active'), 10);
+    }
+    
+    // Close menu if open
+    if (this.elements.menuDropdown) {
+      this.elements.menuDropdown.classList.remove('active');
+    }
   }
 
   /**
@@ -537,7 +627,12 @@ class UIManager {
    */
   hideModal(modalId) {
     const modal = document.getElementById(modalId);
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+      modal.classList.remove('active');
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 200);
+    }
   }
 }
 
