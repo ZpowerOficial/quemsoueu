@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Jogo de adivinhação de jogadores de futebol inspirado no Wordle. Teste seus conhecimentos sobre jogadores, clubes, ligas e nacionalidades!">
-    <meta name="theme-color" content="#1976d2">
+    <meta name="theme-color" content="#4a5568">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -32,7 +32,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png">
     
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Stylesheet -->
     <link rel="stylesheet" href="style.css">
@@ -44,170 +44,205 @@
     <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
     
+    <!-- Main Container -->
     <div class="container">
-        <h1>⚽ Quem sou eu? Jogadores de Futebol</h1>
+        <!-- Header -->
+        <header class="game-header">
+            <h1>⚽ Quem sou eu?</h1>
+            <div class="header-actions">
+                <button id="menu-btn" class="icon-btn" title="Menu">☰</button>
+            </div>
+        </header>
         
-        <div id="instructions">
-            <p>Tente adivinhar o jogador sorteado! Digite o nome, escolha e veja o feedback de cada atributo.<br>
-            <b>Dica:</b> Você pode usar partes do nome, nacionalidade, clube, etc.</p>
-            <div class="btn-group">
-                <button id="tutorial-btn" class="info-btn">❓ Como Jogar</button>
-                <button id="achievements-btn" class="info-btn">🏆 Conquistas</button>
-                <button id="stats-btn" class="info-btn">📊 Estatísticas</button>
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-label">Rodada</span>
+                <span id="round-info" class="status-value">1</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Acertos</span>
+                <span id="wins-info" class="status-value">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Vidas</span>
+                <span id="lives-info" class="status-value">10</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Recorde</span>
+                <span id="record-info" class="status-value">0</span>
+            </div>
+            <div class="status-item timer-item">
+                <span id="timer" class="timer">--</span>
             </div>
         </div>
         
-        <!-- Options Bar -->
-        <div id="options-bar" class="options-bar">
-            <div class="mode-toggle-container">
-                <span class="mode-label">Modo Normal</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="mode-toggle">
-                    <span class="slider round"></span>
-                </label>
-                <span class="mode-label">Modo Difícil</span>
+        <!-- Menu Dropdown -->
+        <div id="menu-dropdown" class="menu-dropdown">
+            <div class="menu-section">
+                <h4>Modo de Jogo</h4>
+                <div class="menu-toggle">
+                    <span>Normal</span>
+                    <label class="toggle-switch small">
+                        <input type="checkbox" id="mode-toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span>Difícil</span>
+                </div>
+                <div class="menu-toggle">
+                    <span>Padrão</span>
+                    <label class="toggle-switch small">
+                        <input type="checkbox" id="quick-toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span>Rápido</span>
+                </div>
+                <div class="menu-toggle">
+                    <span>Atuais</span>
+                    <label class="toggle-switch small">
+                        <input type="checkbox" id="legend-toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span>Lendas</span>
+                </div>
             </div>
-            <div class="mode-toggle-container">
-                <span class="mode-label">Padrão</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="quick-toggle">
-                    <span class="slider round"></span>
-                </label>
-                <span class="mode-label">Rápido</span>
+            <div class="menu-section">
+                <h4>Configurações</h4>
+                <div class="menu-toggle">
+                    <span>Claro</span>
+                    <label class="toggle-switch small">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span>Escuro</span>
+                </div>
+                <div class="menu-toggle">
+                    <span>🔇</span>
+                    <label class="toggle-switch small">
+                        <input type="checkbox" id="audio-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <span>🔊</span>
+                </div>
             </div>
-            <div class="mode-toggle-container">
-                <span class="mode-label">Atuais</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="legend-toggle">
-                    <span class="slider round"></span>
-                </label>
-                <span class="mode-label">Lendas</span>
-            </div>
-            <div class="mode-toggle-container">
-                <span class="mode-label">Claro</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="theme-toggle">
-                    <span class="slider round"></span>
-                </label>
-                <span class="mode-label">Escuro</span>
-            </div>
-            <div class="mode-toggle-container">
-                <span class="mode-label">🔇</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="audio-toggle" checked>
-                    <span class="slider round"></span>
-                </label>
-                <span class="mode-label">🔊</span>
-            </div>
-            <div class="mode-toggle-container">
-                <span class="mode-label">📱</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="vibration-toggle" checked>
-                    <span class="slider round"></span>
-                </label>
-                <span class="mode-label">📳</span>
+            <div class="menu-actions">
+                <button id="tutorial-btn" class="menu-btn">❓ Como Jogar</button>
+                <button id="achievements-btn" class="menu-btn">🏆 Conquistas</button>
+                <button id="stats-btn" class="menu-btn">📊 Estatísticas</button>
+                <button id="ranking-btn" class="menu-btn">🏅 Ranking</button>
             </div>
         </div>
+        
+        <!-- Game Area -->
+        <div class="game-area">
+            <!-- Input Section -->
+            <div class="input-section">
+                <div class="input-wrapper">
+                    <input type="text" id="player-input" placeholder="Digite o nome do jogador..." autocomplete="off" spellcheck="false">
+                    <button id="hint-btn" class="icon-btn hint-btn" title="Dica">💡</button>
+                </div>
+                <ul id="suggestions"></ul>
+                <button id="choose-btn" class="primary-btn">
+                    <span>Enviar</span>
+                    <small>Enter ↵</small>
+                </button>
+            </div>
+            
+            <!-- Hint Display -->
+            <div id="hint" class="hint-text"></div>
+            
+            <!-- Loading -->
+            <div id="loading" class="loading" style="display:none;">
+                <span class="spinner"></span>
+                <span>Carregando...</span>
+            </div>
+            
+            <!-- Skeleton Loader -->
+            <div id="skeleton-loader" class="skeleton" style="display:none;">
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line"></div>
+            </div>
+            
+            <!-- Feedback -->
+            <div id="feedback" class="feedback-container"></div>
+            
+            <!-- Player Details -->
+            <div id="player-details" class="player-details" style="display:none;"></div>
+            
+            <!-- History Toggle -->
+            <button id="history-toggle" class="secondary-btn" style="display:none;">
+                📋 Ver histórico
+            </button>
+        </div>
+    </div>
+    
+    <!-- Tutorial Modal -->
+    <div id="tutorial-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Como Jogar</h2>
+            <div class="tutorial-section">
+                <h3>🎯 Objetivo</h3>
+                <p>Adivinhe o jogador escondido com base nos atributos.</p>
+            </div>
+            <div class="tutorial-section">
+                <h3>🎨 Cores</h3>
+                <div class="color-legend">
+                    <div class="legend-item">
+                        <span class="color-box green"></span>
+                        <span>Correto</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="color-box orange"></span>
+                        <span>Próximo (idade ±2 anos)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="color-box red"></span>
+                        <span>Incorreto</span>
+                    </div>
+                </div>
+            </div>
+            <div class="tutorial-section">
+                <h3>💡 Dica</h3>
+                <p>Digite um nome e pressione <b>Enter</b> para enviar automaticamente o primeiro jogador sugerido.</p>
+            </div>
+        </div>
+    </div>
 
-        <!-- Tutorial Modal -->
-        <div id="tutorial-modal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Como Jogar "Quem Sou Eu?"</h2>
-                <div class="tutorial-section">
-                    <h3>🎯 Objetivo</h3>
-                    <p>Adivinhar o jogador de futebol escondido com o menor número de tentativas.</p>
-                </div>
-                <div class="tutorial-section">
-                    <h3>🎨 Significado das cores</h3>
-                    <ul>
-                        <li><span class="color-sample green"></span> <b>Verde:</b> Atributo idêntico ao do jogador escondido.</li>
-                        <li><span class="color-sample orange"></span> <b>Laranja:</b> Parcialmente correto (idade até 2 anos ou histórico).</li>
-                        <li><span class="color-sample red"></span> <b>Vermelho:</b> Atributo diferente do jogador escondido.</li>
-                    </ul>
-                </div>
-                <div class="tutorial-section">
-                    <h3>🎮 Como funciona</h3>
-                    <ul>
-                        <li>Digite o nome do jogador que você quer testar</li>
-                        <li>Selecione um jogador da lista de sugestões</li>
-                        <li>Clique em "Escolher" para ver a comparação</li>
-                        <li>Acerte o jogador para ganhar pontos e 3 vidas extras</li>
-                        <li>O jogo termina quando acabarem suas vidas</li>
-                    </ul>
-                </div>
-                <div class="tutorial-section">
-                    <h3>⚙️ Modos de jogo</h3>
-                    <ul>
-                        <li><b>Normal:</b> sem limite de tempo, apenas jogadores em atividade.</li>
-                        <li><b>Difícil:</b> 20 segundos por rodada.</li>
-                        <li><b>Lendas:</b> sorteia apenas jogadores históricos ou aposentados.</li>
-                        <li><b>Rápido:</b> tempo diminui a cada rodada.</li>
-                        <li>Você pode alternar entre tema claro ou escuro a qualquer momento.</li>
-                    </ul>
-                </div>
-                <div class="tutorial-section">
-                    <h3>🏆 Conquistas</h3>
-                    <p>Complete desafios para desbloquear conquistas especiais! Veja todas na aba de conquistas.</p>
-                </div>
-            </div>
+    <!-- Achievements Modal -->
+    <div id="achievements-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>🏆 Conquistas</h2>
+            <div id="achievements-list" class="achievements-list"></div>
         </div>
+    </div>
 
-        <!-- Achievements Modal -->
-        <div id="achievements-modal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>🏆 Conquistas</h2>
-                <div id="achievements-list" class="achievements-list">
-                    <!-- Populated by JavaScript -->
-                </div>
-            </div>
+    <!-- Statistics Modal -->
+    <div id="stats-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>📊 Estatísticas</h2>
+            <div id="stats-content"></div>
         </div>
-
-        <!-- Statistics Modal -->
-        <div id="stats-modal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>📊 Suas Estatísticas</h2>
-                <div id="stats-content">
-                    <!-- Populated by JavaScript -->
-                </div>
-            </div>
+    </div>
+    
+    <!-- Ranking Modal -->
+    <div id="ranking-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>🏅 Melhores Recordes</h2>
+            <ol id="ranking-list" class="ranking-list"></ol>
         </div>
-
-        <!-- Game Status -->
-        <div id="game-status">
-            <span id="round-info"></span>
-            <span id="loading" style="display:none;">Carregando...</span>
-            <span id="timer"></span>
-        </div>
-        
-        <!-- Skeleton Loader -->
-        <div id="skeleton-loader" class="skeleton" style="display:none;">
-            <div class="skeleton-line"></div>
-            <div class="skeleton-line"></div>
-            <div class="skeleton-line"></div>
-        </div>
-        
-        <!-- Hint -->
-        <div id="hint-container">
-            <button id="hint-btn" class="info-btn">💡 Dica</button>
-            <div id="hint" style="margin-top:10px;"></div>
-        </div>
-        
-        <!-- Input -->
-        <input type="text" id="player-input" placeholder="Digite o nome do jogador..." autocomplete="off" spellcheck="false">
-        <ul id="suggestions"></ul>
-        <button id="choose-btn" disabled>Escolher</button>
-        
-        <!-- Feedback -->
-        <div id="feedback"></div>
-        <div id="player-details" style="display:none;"></div>
-        
-        <!-- Ranking -->
-        <div id="ranking-container">
-            <h3>🏅 Seus Melhores Recordes</h3>
-            <ol id="ranking-list"></ol>
+    </div>
+    
+    <!-- History Modal -->
+    <div id="history-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>📋 Histórico de Tentativas</h2>
+            <div id="history-content"></div>
         </div>
     </div>
     
