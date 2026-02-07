@@ -170,10 +170,13 @@
             <!-- Player Details -->
             <div id="player-details" class="player-details" style="display:none;"></div>
             
-            <!-- History Toggle -->
-            <button id="history-toggle" class="secondary-btn" style="display:none;">
-                📋 Ver histórico
-            </button>
+            <!-- History -->
+            <div id="history-container" class="history-container">
+                <h3>📋 Histórico de Tentativas</h3>
+                <div id="history-content" class="history-content">
+                    <p class="empty-state">Nenhuma tentativa ainda</p>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -234,15 +237,6 @@
             <span class="close">&times;</span>
             <h2>🏅 Melhores Recordes</h2>
             <ol id="ranking-list" class="ranking-list"></ol>
-        </div>
-    </div>
-    
-    <!-- History Modal -->
-    <div id="history-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>📋 Histórico de Tentativas</h2>
-            <div id="history-content"></div>
         </div>
     </div>
     

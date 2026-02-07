@@ -472,7 +472,7 @@ class GameManager {
     // Reset for next round
     this.state.attempts = [];
     this.state.isPerfectRound = true;
-    uiManager.elements.historyContainer.style.display = 'none';
+    uiManager.updateAttemptsHistory(this.state.attempts);
     this.state.round++;
     
     uiManager.setLoading(false);
@@ -524,7 +524,6 @@ class GameManager {
     results.push({
       label: 'Idade',
       value: selectedAge !== null ? `${selectedAge} anos` : 'Desconhecida',
-      correct: correctAge !== null ? `${correctAge} anos` : 'Desconhecida',
       color: ageColor
     });
 
@@ -544,7 +543,6 @@ class GameManager {
     results.push({
       label: 'Clube',
       value: selectedPlayer.club,
-      correct: correctPlayer.club,
       color: clubColor
     });
 
@@ -572,7 +570,6 @@ class GameManager {
     results.push({
       label: 'Liga',
       value: selectedLeague,
-      correct: correctLeague,
       color: leagueColor
     });
 
@@ -585,7 +582,6 @@ class GameManager {
     results.push({
       label: 'Posição',
       value: selectedPlayer.position,
-      correct: correctPlayer.position,
       color: positionColor
     });
 
@@ -598,7 +594,6 @@ class GameManager {
     results.push({
       label: 'Nacionalidade',
       value: selectedPlayer.nationality,
-      correct: correctPlayer.nationality,
       color: nationalityColor
     });
 
