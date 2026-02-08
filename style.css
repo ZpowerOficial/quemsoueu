@@ -485,7 +485,7 @@ input:checked + .slider:before {
 
 .feedback-item {
   display: grid;
-  grid-template-columns: 100px 1fr auto;
+  grid-template-columns: 100px 1fr;
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
@@ -531,10 +531,7 @@ input:checked + .slider:before {
   font-weight: 500;
 }
 
-.feedback-correct {
-  font-size: 0.8125rem;
-  opacity: 0.8;
-}
+
 
 /* ==================== Player Details ==================== */
 .player-details {
@@ -939,24 +936,43 @@ input:checked + .slider:before {
     grid-template-columns: 80px 1fr;
     gap: var(--space-2);
   }
-  
-  .feedback-correct {
-    grid-column: 1 / -1;
-    font-size: 0.75rem;
-  }
 }
 
 /* ==================== History ==================== */
-.history-item {
-  padding: var(--space-4);
+.history-container {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.history-container h3 {
+  font-size: 1rem;
+  font-weight: 600;
   margin-bottom: var(--space-3);
+  color: var(--color-text);
+}
+
+.history-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.history-item {
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.history-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .history-header {
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
   color: var(--color-text);
   margin-bottom: var(--space-2);
 }
@@ -973,12 +989,15 @@ input:checked + .slider:before {
 }
 
 .history-badge {
-  padding: var(--space-1) var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 
 .history-badge.green {
@@ -999,8 +1018,8 @@ input:checked + .slider:before {
 .empty-state {
   text-align: center;
   color: var(--color-text-muted);
-  padding: var(--space-8) var(--space-4);
-  font-size: 0.9375rem;
+  padding: var(--space-4);
+  font-size: 0.875rem;
 }
 
 .ranking-info {

@@ -39,7 +39,7 @@ class UIManager {
       hint: document.getElementById('hint'),
       loading: document.getElementById('loading'),
       skeleton: document.getElementById('skeleton-loader'),
-      historyToggle: document.getElementById('history-toggle'),
+      historyContainer: document.getElementById('history-container'),
       
       // Status
       roundInfo: document.getElementById('round-info'),
@@ -68,7 +68,6 @@ class UIManager {
       achievementsModal: document.getElementById('achievements-modal'),
       statsModal: document.getElementById('stats-modal'),
       rankingModal: document.getElementById('ranking-modal'),
-      historyModal: document.getElementById('history-modal'),
       closeButtons: document.querySelectorAll('.close'),
       
       // Lists
@@ -109,12 +108,7 @@ class UIManager {
       });
     }
     
-    // History toggle
-    if (this.elements.historyToggle) {
-      this.elements.historyToggle.addEventListener('click', () => {
-        this.showModal('history-modal');
-      });
-    }
+
   }
 
   /**
@@ -233,7 +227,6 @@ class UIManager {
       div.innerHTML = `
         <span class="feedback-label">${r.label}</span>
         <span class="feedback-value">${r.value}</span>
-        <span class="feedback-correct">${r.correct ? `✓ ${r.correct}` : ''}</span>
       `;
       fragment.appendChild(div);
     });
@@ -318,23 +311,17 @@ class UIManager {
   }
 
   /**
-   * Update attempts history - now stored for modal display
+   * Update attempts history panel
    * @param {Array} attempts - Attempts array
    */
   updateAttemptsHistory(attempts) {
     this.attempts = attempts;
     
-    // Show/hide history toggle button
-    if (this.elements.historyToggle) {
-      this.elements.historyToggle.style.display = attempts.length > 0 ? 'block' : 'none';
-    }
-    
-    // Update history modal content
     this.updateHistoryModal(attempts);
   }
 
   /**
-   * Update history modal content
+   * Update history panel content
    * @param {Array} attempts - Attempts array
    */
   updateHistoryModal(attempts) {
@@ -597,10 +584,8 @@ class UIManager {
       this.elements.timer.textContent = '--';
       this.elements.timer.classList.remove('urgent');
     }
-    if (this.elements.historyToggle) {
-      this.elements.historyToggle.style.display = 'none';
-    }
     this.attempts = [];
+    this.updateHistoryModal(this.attempts);
   }
 
   /**
